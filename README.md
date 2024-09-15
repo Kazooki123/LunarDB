@@ -39,4 +39,4 @@ Feel free to contribution as it is open for all developers! Just make sure to fo
 
 ## LICENSE
 
-Lunas db is under the LICENSE of MIT.
+LunarDB is under the LICENSE of MIT.
