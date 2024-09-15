@@ -17,6 +17,12 @@ void printHelp() {
               << "CLEANUP - Remove expired entries\n"
               << "SAVE filename - Save the cache to a file\n"
               << "LOAD filename - Load the cache from a file\n"
+              << "LPUSH key value - Push an element to the head of the list\n"
+              << "LPOP key - Remove and return an element from the head of the list\n"
+              << "RPUSH key value - Push an element to the tail of the list\n"
+              << "RPOP key - Remove and return an element from the tail of the list\n"
+              << "LRANGE key start stop - Get a range of elements from the list\n"
+              << "LLEN key - Get the length of the list\n"
               << "QUIT - Exit the program\n";
 }
 
@@ -127,6 +133,67 @@ int main() {
                 std::cout << "OK\n";
             } else {
                 std::cout << "Invalid LOAD command. Usage: LOAD filename\n";
+            }
+        } else if (command == "LPUSH") {
+            std::string key, value;
+            if (iss >> key >> value) {
+                cache.lpush(key, value);
+                std::cout << "OK\n";
+            } else {
+                std::cout << "Invalid LPUSH command\n";
+            }
+        } else if (command == "LPOP") {
+            std::string key;
+            if (iss >> key) {
+                std::string value = cache.lpop(key);
+                if (!value.empty()) {
+                    std::cout << value << "\n";
+                } else {
+                    std::cout << "(nil)\n";
+                }
+            } else {
+                std::cout << "Invalid LPOP command\n";
+            }
+        } else if (command == "RPUSH") {
+            std::string key, value;
+            if (iss >> key >> value) {
+                cache.rpush(key, value);
+                std::cout << "OK\n";
+            } else {
+                std::cout << "Invalid RPUSH command\n";
+            }
+        } else if (command == "RPOP") {
+            std::string key;
+            if (iss >> key) {
+                std::string value = cache.rpop(key);
+                if (!value.empty()) {
+                    std::cout << value << "\n";
+                } else {
+                    std::cout << "(nil)\n";
+                }
+            } else {
+                std::cout << "Invalid RPOP command\n";
+            }
+        } else if (command == "LRANGE") {
+            std::string key;
+            int start, stop;
+            if (iss >> key >> start >> stop) {
+                auto values = cache.lrange(key, start, stop);
+                for (const auto& value : values) {
+                    std::cout << value << "\n";
+                }
+                if (values.empty()) {
+                    std::cout << "(empty list or set)\n";
+                }
+            } else {
+                std::cout << "Invalid LRANGE command\n";
+            }
+        } else if (command == "LLEN") {
+            std::string key;
+            if (iss >> key) {
+                std::cout << cache.llen(key) << "\n";
+            } else {
+                std::cout << "Invalid LLEN command\n";
             }
         } else if (command == "QUIT") {
             break;
