@@ -1,4 +1,4 @@
-# LUNAR: A cache key-value database
+# LunarDB: A cache key-value database
 
 A Cache database
 

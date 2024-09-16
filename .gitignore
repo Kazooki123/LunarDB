@@ -1,4 +1,11 @@
+# test
 test/
+
+# src
 src/hello
 src/lunar2.exe
 src/main2.cpp
+src/hello
+
+# fleet
+.fleet/
