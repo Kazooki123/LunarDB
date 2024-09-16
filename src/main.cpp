@@ -1,3 +1,5 @@
+// Author: Kazooki123, StarloExoliz
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -26,12 +28,26 @@ void printHelp() {
               << "QUIT - Exit the program\n";
 }
 
+// 3D ASCII TEXT ART FOR LUNARDB
+void printLunarLogo() {
+    std::cout << "___           ___  ___      ________       ________      ________      \n"
+              << "|\\  \\         |\\  \\|\\  \\    |\\   ___  \\    |\\   __  \\    |\\   __  \\    \n"
+              << "\\ \\  \\        \\ \\  \\\\\\  \\   \\ \\  \\\\ \\  \\   \\ \\  \\|\\  \\   \\ \\  \\|\\  \\   \n"
+              << " \\ \\  \\        \\ \\  \\\\\\  \\   \\ \\  \\\\ \\  \\   \\ \\   __  \\   \\ \\   _  _\\  \n"
+              << "  \\ \\  \\____    \\ \\  \\\\\\  \\   \\ \\  \\\\ \\  \\   \\ \\  \\ \\  \\   \\ \\  \\\\  \\| \n"
+              << "   \\ \\_______\\   \\ \\_______\\   \\ \\__\\\\ \\__\\   \\ \\__\\ \\__\\   \\ \\__\\\\ _\\ \n"
+              << "    \\|_______|    \\|_______|    \\|__| \\|__|    \\|__|\\|__|    \\|__|\\|__|\n";
+
+}
+
 int main() {
     Cache cache(1000); // Create a cache with a maximum of 1000 entries
     std::string command, line;
 
     std::cout << "Welcome to Lunar! A Redis-like cache database!\n";
+    printLunarLogo();
     printHelp();
+
 
     while (true) {
         std::cout << "> ";
