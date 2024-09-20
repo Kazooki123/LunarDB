@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: LunarDB API
+  version: 1.0.0
+  description: API support for LunarDB.
+
+paths:
+  /api/v1/get/{key}:
+    get:
+      summary: Get a value by key
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: string
+        '404':
+          description: Key not found
+
+  /api/v1/set:
+    post:
+      summary: Set a key-value pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+                ttl:
+                  type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+
+  /api/v1/lpush:
+    post:
+      summary: Push an element to the head of the list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
