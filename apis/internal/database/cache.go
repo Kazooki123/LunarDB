@@ -2,7 +2,6 @@ package database
 
 import (
 	"sync"
-	"time"
 )
 
 type Cache struct {

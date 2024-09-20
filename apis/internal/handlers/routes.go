@@ -12,21 +12,21 @@ func SetupRoutes(router *gin.Engine, cache *database.Cache) {
 	{
 		v1.GET("/get/:key", getHandler(cache))
 		v1.POST("/set", setHandler(cache))
-		v1.DELETE("/del/:key", delHandler(cache))
-		v1.POST("/mset", msetHandler(cache))
-		v1.POST("/mget", mgetHandler(cache))
-		v1.GET("/keys", keysHandler(cache))
-		v1.POST("/clear", clearHandler(cache))
-		v1.GET("/size", sizeHandler(cache))
-		v1.POST("/cleanup", cleanupHandler(cache))
+		// v1.DELETE("/del/:key", delHandler(cache))
+		// v1.POST("/mset", msetHandler(cache))
+		// v1.POST("/mget", mgetHandler(cache))
+		// v1.GET("/keys", keysHandler(cache))
+		// v1.POST("/clear", clearHandler(cache))
+		// v1.GET("/size", sizeHandler(cache))
+		// v1.POST("/cleanup", cleanupHandler(cache))
 		
 		// List operations
-		v1.POST("/lpush", lpushHandler(cache))
-		v1.POST("/lpop", lpopHandler(cache))
-		v1.POST("/rpush", rpushHandler(cache))
-		v1.POST("/rpop", rpopHandler(cache))
-		v1.GET("/lrange", lrangeHandler(cache))
-		v1.GET("/llen", llenHandler(cache))
+		// v1.POST("/lpush", lpushHandler(cache))
+		// v1.POST("/lpop", lpopHandler(cache))
+		// v1.POST("/rpush", rpushHandler(cache))
+		// v1.POST("/rpop", rpopHandler(cache))
+		// v1.GET("/lrange", lrangeHandler(cache))
+		// v1.GET("/llen", llenHandler(cache))
 	}
 }
 
@@ -57,4 +57,3 @@ func setHandler(cache *database.Cache) gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"message": "OK"})
 	}
 }
-/
