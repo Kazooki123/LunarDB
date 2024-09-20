@@ -1,5 +1,3 @@
-// Author: Kazooki123, Starloexolizzz
-
 package main
 
 import (
@@ -8,19 +6,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/Kazooki123/lunardb/api/v1"
-	"github.com/Kazooki123/lunardb/cache"
+	"github.com/Kazooki123/lunardb/apis/internal/database"
+	"github.com/Kazooki123/lunardb/apis/internal/handlers"
+	"github.com/Kazooki123/lunardb/apis/internal/middleware"
 )
 
 func main() {
-	// Initializes the cache
-	c := cache.NewCache(1000) // Creates a cache with a maximum of 1000 entries.
+	// Initialize the cache
+	cache := database.NewCache(1000) // Create a cache with a maximum of 1000 entries
 
 	// Set up the Gin router
 	router := gin.Default()
 
+	// Apply middleware
+	router.Use(middleware.Logger())
+
 	// Initialize the API routes
-	v1.SetupRoutes(router, c)
+	handlers.SetupRoutes(router, cache)
 
 	// Start the server
 	fmt.Println("Starting LunarDB API server on :8080")
