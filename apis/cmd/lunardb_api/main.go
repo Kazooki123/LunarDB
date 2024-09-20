@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/lunardb/api/v1"
-	"github.com/yourusername/lunardb/cache"
+	"github.com/Kazooki123/lunardb/api/v1"
+	"github.com/Kazooki123/lunardb/cache"
 )
 
 func main() {
