@@ -5,6 +5,33 @@
 #include <sstream>
 #include "cache.h"
 #include "saved.h"
+#include "sql.h"
+#include <algorithm>
+
+enum class Mode {
+    SCHEMAFULL,
+    SCHEMALESS,
+    SQL
+};
+
+void printColoredText(const std::string& text, const std::string& color) {
+    if (color == "blue") {
+        std::cout << "\033[34m" << text << "\033[0m";
+    } else if (color == "yellow") {
+        std::cout << "\033[33m" << text << "\033[0m";
+    } else if (color == "red") {
+        std::cout << "\033[31m" << text << "\033[0m";
+    } else {
+        std::cout << text;
+    }
+}
+
+void printSwitchOptions() {
+    std::cout << "Pick a type:\n";
+    printColoredText("> SCHEMAFULL\n", "blue");
+    printColoredText("> SCHEMALESS\n", "yellow");
+    printColoredText("> SQL\n", "red");
+}
 
 void printHelp() {
     std::cout << "Available commands:\n"
@@ -14,6 +41,7 @@ void printHelp() {
               << "MSET key1 value1 key2 value2 ... - Set multiple key-value pairs\n"
               << "MGET key1 key2 ... - Get multiple values\n"
               << "KEYS - List all keys\n"
+              << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "SIZE - Get the number of key-value pairs\n"
               << "CLEANUP - Remove expired entries\n"
@@ -42,7 +70,10 @@ void printLunarLogo() {
 
 int main() {
     Cache cache(1000); // Create a cache with a maximum of 1000 entries
+    SQL sql(cache);
     std::string command, line;
+    Mode currentMode = Mode::SCHEMALESS;
+
 
     std::cout << "Welcome to Lunar! A Redis-like cache database!\n";
     printLunarLogo();
@@ -55,7 +86,32 @@ int main() {
         std::istringstream iss(line);
         iss >> command;
 
-        if (command == "SET") {
+        if (command == "SWITCH") {
+            printSwitchOptions();
+            std::string modeStr;
+            std::cin >> modeStr;
+            std::transform(modeStr.begin(), modeStr.end(), modeStr.begin(), ::toupper);
+
+            if (modeStr == "SCHEMAFULL") {
+                currentMode = Mode::SCHEMAFULL;
+                std::cout << "Switched to SCHEMAFULL mode\n";
+            } else if (modeStr == "SCHEMALESS") {
+                currentMode = Mode::SCHEMALESS;
+                std::cout << "Switched to SCHEMALESS mode\n";
+            } else if (modeStr == "SQL") {
+                currentMode = Mode::SQL;
+                std::cout << "Switched to SQL mode\n";
+            } else {
+                std::cout << "Invalid mode. Please choose SCHEMAFULL, SCHEMALESS, or SQL\n";
+            }
+            continue;
+        }
+
+        if (currentMode == Mode::SQL) {
+            std::string result = sql.executeQuery(line);
+            std::cout << result << "\n";
+        } else {
+            if (command == "SET") {
             std::string key, value;
             int ttl = 0;
             if (iss >> key >> value) {
@@ -214,7 +270,8 @@ int main() {
         } else if (command == "QUIT") {
             break;
         } else {
-            std::cout << "Unknown command. Type 'HELP' for available commands.\n";
+                std::cout << "Unknown command. Type 'HELP' for available commands.\n";
+            }
         }
     }
 
