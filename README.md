@@ -1,14 +1,14 @@
-# LunarDB: A cache key-value database
+# 🌑LunarDB: A cache key-value database
 
-A Cache database
+⚡A Cache database⚡
 
-## What is it?
+## 🔗What is it?
 
 Lunar is a Key-Value, Cache, Memory based database that loads keys and values in a file when saved by command, you can load this keys and values by the command "LOAD" then filename.
 
-## Commands
+## 🔗Commands
 
-**Available commands:**
+**🧭Available commands:**
 
 SET key value [ttl] - Set a key-value pair with optional TTL in seconds.
 
@@ -34,9 +34,9 @@ LOAD filename - Load the cache from a file
 
 QUIT - Exit the program
 
-## CONTRIBUTIONS:
+## 🤝CONTRIBUTIONS:
 Feel free to contribution as it is open for all developers! Just make sure to follow the CONTRIBUTION rules and be respectful.
 
-## LICENSE
+## ©️LICENSE
 
 LunarDB is under the LICENSE of MIT.
