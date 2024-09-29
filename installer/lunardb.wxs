@@ -5,21 +5,40 @@
            Manufacturer="TheStarTeam" 
            UpgradeCode="32121dd3-5b18-4acb-a92d-8bf9c0eb670f">
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of LunarDB is already installed." />
 
     <MediaTemplate EmbedCab="yes" />
 
-    <Feature Id="MainFeature" Title="LunarDB" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
+    <Feature Id="Complete" Title="LunarDB" Level="1">
+      <Feature Id="MainProgram" Title="Program" Level="1">
+        <ComponentGroupRef Id="ProductComponents" />
+      </Feature>
+      <Feature Id="SourceCode" Title="Source Code" Level="2">
+        <ComponentGroupRef Id="SourceComponents" />
+      </Feature>
     </Feature>
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="LunarDB" />
+      <Directory Id="INSTALLFOLDER" Name="LunarDB">
+        <Directory Id="SourceDir" Name="src" />
+      </Directory>
     </StandardDirectory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component>
-        <File Source="src/lunar.exe" />
+        <File Source="../src/lunar.exe" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="SourceComponents" Directory="SourceDir">
+      <Component>
+        <File Source="../src/main.cpp" />
+      </Component>
+      <Component>
+        <File Source="../src/main_server.cpp" />
+      </Component>
+      <Component>
+        <File Source="../src/lunardb.exe"/>
       </Component>
     </ComponentGroup>
 
