@@ -6,6 +6,12 @@
 
 Lunar is a Key-Value, Cache, Memory based database that loads keys and values in a file when saved by command, you can load this keys and values by the command "LOAD" then filename.
 
+## 📖Documentation
+
+**💫LunarDB** has a documentation website with a guide for users who are new and learning to use LunarDB!
+
+**🌐Visit** [here](https://lunardbdocs.vercel.app/docs/)
+
 ## 🔗Commands
 
 **🧭Available commands:**
@@ -34,7 +40,8 @@ LOAD filename - Load the cache from a file
 
 QUIT - Exit the program
 
-## 🤝CONTRIBUTIONS:
+## 🤝CONTRIBUTIONS
+
 Feel free to contribution as it is open for all developers! Just make sure to follow the CONTRIBUTION rules and be respectful.
 
 ## ©️LICENSE
