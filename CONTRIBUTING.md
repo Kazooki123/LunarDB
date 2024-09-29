@@ -18,36 +18,54 @@ LunarDB utilizes a variety of programming languages and technologies, each servi
 We welcome a wide variety of contributions. Here's how you can get started:
 
 ### 1. Fork the Repository
+
 Start by [forking the repository](https://github.com/Kazooki123/LunarDB/fork) to your own GitHub account.
 
 ### 2. Clone Your Fork
+
 Clone your fork locally so you can begin making changes.
+
 ```bash
 git clone https://github.com/Kazooki123/LunarDB.git
 cd LunarDB
 ```
 
 ### 3. Create a New Branch
+
 For each new feature, bug fix, or improvement, create a separate branch to keep your changes organized.
+
 ```bash
 git checkout -b feature/my-new-feature
 ```
 
 ### 4. Commit Your Changes
+
 Make sure to test your changes thoroughly and follow the project's coding standards. Once ready, commit your changes.
+
 ```bash
 git add .
 git commit -m "Description of the changes"
 ```
 
 ### 5. Push to Your Fork and Submit a Pull Request
+
 Push your changes to your forked repository and submit a pull request to the main LunarDB repository.
+
 ```bash
 git push origin feature/my-new-feature
 ```
 
 ### 6. Review Process
+
 One of the project maintainers will review your pull request, provide feedback if necessary, and merge it once everything looks good. We aim to respond to pull requests within a few days.
+
+### Additional Note
+
+If you're recompiling lunar.exe make sure to run this command with [g++](https://gcc.gnu.org/):
+
+```bash
+g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp -o lunar.exe
+```
 
 ## Contribution Guidelines
 
