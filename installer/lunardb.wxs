@@ -1,0 +1,27 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="LunarDB" 
+           Language="1033" 
+           Version="1.0.0.0" 
+           Manufacturer="TheStarTeam" 
+           UpgradeCode="32121dd3-5b18-4acb-a92d-8bf9c0eb670f">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="MainFeature" Title="LunarDB" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="LunarDB" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component>
+        <File Source="src/lunar.exe" />
+      </Component>
+    </ComponentGroup>
+
+  </Package>
+</Wix>
