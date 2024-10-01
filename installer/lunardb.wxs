@@ -1,5 +1,4 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="LunarDB" 
            Language="1033" 
            Version="1.0.0.0" 
@@ -44,7 +43,9 @@
     </ComponentGroup>
 
     <!-- UI Configuration -->
-    <ui:WixUI Id="WixUI_InstallDir" />
+    <UI>
+      <UI Id="WixUI_InstallDir" />
+    </UI>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
     <WixVariable Id="WixUILicenseRtf" Value="../LICENSE.rtf" />

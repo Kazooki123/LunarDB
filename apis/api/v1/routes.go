@@ -2,7 +2,7 @@ package v1
 
 import (
 	"net/http"
-	"strconv"
+	// "strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/Kazooki123/lunardb/cache"
@@ -13,21 +13,21 @@ func SetupRoutes(router *gin.Engine, c *cache.Cache) {
 	{
 		v1.GET("/get/:key", getHandler(c))
 		v1.POST("/set", setHandler(c))
-		v1.DELETE("/del/:key", delHandler(c))
-		v1.POST("/mset", msetHandler(c))
-		v1.POST("/mget", mgetHandler(c))
-		v1.GET("/keys", keysHandler(c))
-		v1.POST("/clear", clearHandler(c))
-		v1.GET("/size", sizeHandler(c))
-		v1.POST("/cleanup", cleanupHandler(c))
+		// v1.DELETE("/del/:key", delHandler(c))
+		// v1.POST("/mset", msetHandler(c))
+		// v1.POST("/mget", mgetHandler(c))
+		// v1.GET("/keys", keysHandler(c))
+		// v1.POST("/clear", clearHandler(c))
+		// v1.GET("/size", sizeHandler(c))
+		// v1.POST("/cleanup", cleanupHandler(c))
 
 		// List of operations
 		v1.POST("/lpush", lpushHandler(c))
-		v1.POST("/lpop", lpopHandler(c))
-		v1.POST("/rpush", rpushHandler(c))
-		v1.POST("/rpop", rpopHandler(c))
-		v1.GET("/lrange", lrangeHandler(c))
-		v1.GET("/llen", llenHandler(c))
+		// v1.POST("/lpop", lpopHandler(c))
+		// v1.POST("/rpush", rpushHandler(c))
+		// v1.POST("/rpop", rpopHandler(c))
+		// v1.GET("/lrange", lrangeHandler(c))
+		// v1.GET("/llen", llenHandler(c))
 	}
 }
 

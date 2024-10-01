@@ -1,11 +1,10 @@
-package main
+package v1
 
 import (
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/hin"
 	"golang.org/x/tools/go/analysis/passes/nilness"
 )
 
@@ -20,14 +19,14 @@ type commands struct{
 	KEY string		`json:"key"`
 	CLEAR string	`json:"clear"`
 	SIZE int		`json:"size"`
-	//cleanup, save, load and quit are set to boolien variables
+	//cleanup, save, load and quit are set to boolean variables
 	CLEANUP string	`json:"cleanUp"` 
 	SAVE string	`json:"save"`
 	LOAD string		`json:"load"`
 	QUIT string	`json:"exit"`
-
 }
-//taking agin contex in the above function and allows responce
+
+// Taking a gin context in the above function and allows response
 func getcommands(c = gin.Context){
 
 	//properly formated Json
