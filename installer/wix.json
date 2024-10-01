@@ -1,7 +1,0 @@
-{
-  "version": "5.0.0",
-  "sources": ["lunardb.wxs"],
-  "dependencies": {
-    "WixToolset.UI.wixext": "5.0.0"
-  }
-}

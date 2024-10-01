@@ -27,7 +27,7 @@ type commands struct{
 }
 
 // Taking a gin context in the above function and allows response
-func getcommands(c = gin.Context){
+func getcommands(c := gin.Context){
 
 	//properly formated Json
 	c.IndentedJson(http.StatusOK, commands)
