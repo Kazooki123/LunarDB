@@ -1,6 +1,10 @@
-# 🌑LunarDB: A cache key-value database
+<div align="center">
+  <img src="lunardblogomain.png" alt="LunarDB">
 
-⚡A Cache database⚡
+  <h1>🌑LunarDB: A cache key-value database</h1>
+
+  <h3><b>⚡A Cache database⚡</b></h3>
+</div>
 
 ## 🔗What is it?
 
