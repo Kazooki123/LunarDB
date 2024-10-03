@@ -10,113 +10,128 @@ pub fn execute_command(vectors: &mut HashMap<String, LunarVector>, input: &str) 
     }
 
     match parts[0].to_uppercase().as_str() {
-        "VCREATE" => create_vector(vectors, parts),
-        "VPUSH" => push_to_vector(vectors, parts),
-        "VPOP" => pop_from_vector(vectors, parts),
-        "VGET" => get_from_vector(vectors, parts),
-        "VLEN" => vector_length(vectors, parts),
+        "VCREATE" => create_vector_db(vectors, parts),
+        "VADD" => add_vector(vectors, parts),
+        "VGET" => get_vector(vectors, parts),
+        "VSEARCH" => search_similar_vectors(vectors, parts),
+        "VLEN" => vector_db_length(vectors, parts),
         "VTTL" => set_vector_ttl(vectors, parts),
+        "VCLEANUP" => cleanup_expired_vectors(vectors),
         "HELP" => help(),
         _ => "Unknown command. Type 'HELP' for available commands.".to_string(),
     }
 }
 
-fn create_vector(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
+fn create_vector_db(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
     if parts.len() != 2 {
         return "Usage: VCREATE <key>".to_string();
     }
     let key = parts[1].to_string();
     vectors.insert(key.clone(), LunarVector::new());
-    format!("Vector '{}' created", key)
+    format!("Vector database '{}' created", key)
 }
 
-fn push_to_vector(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
-    if parts.len() != 3 {
-        return "Usage: VPUSH <key> <value>".to_string();
+fn add_vector(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
+    if parts.len() < 4 {
+        return "Usage: VADD <db_key> <vector_id> <dim1> <dim2> ...".to_string();
     }
-    let key = parts[1];
-    let value = parts[2];
-    if let Some(vector) = vectors.get_mut(key) {
-        vector.push(value.to_string());
+    let db_key = parts[1];
+    let vector_id = parts[2];
+    let data: Vec<f32> = parts[3..].iter().filter_map(|s| s.parse().ok()).collect();
+
+    if let Some(db) = vectors.get_mut(db_key) {
+        db.add(vector_id.to_string(), data);
         "OK".to_string()
     } else {
-        format!("Vector '{}' not found", key)
+        format!("Vector database '{}' not found", db_key)
     }
 }
 
-fn pop_from_vector(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
-    if parts.len() != 2 {
-        return "Usage: VPOP <key>".to_string();
-    }
-    let key = parts[1];
-    if let Some(vector) = vectors.get_mut(key) {
-        if let Some(value) = vector.pop() {
-            value
-        } else {
-            "(nil)".to_string()
-        }
-    } else {
-        format!("Vector '{}' not found", key)
-    }
-}
-
-fn get_from_vector(vectors: &HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
+fn get_vector(vectors: &HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
     if parts.len() != 3 {
-        return "Usage: VGET <key> <index>".to_string();
+        return "Usage: VGET <db_key> <vector_id>".to_string();
     }
-    let key = parts[1];
-    let index: usize = match parts[2].parse() {
-        Ok(i) => i,
-        Err(_) => return "Invalid index".to_string(),
-    };
-    if let Some(vector) = vectors.get(key) {
-        if let Some(value) = vector.get(index) {
-            value.clone()
+    let db_key = parts[1];
+    let vector_id = parts[2];
+    if let Some(db) = vectors.get(db_key) {
+        if let Some(vector) = db.get(vector_id) {
+            format!("{:?}", vector.data())
         } else {
-            "(nil)".to_string()
+            format!("Vector '{}' not found in database '{}'", vector_id, db_key)
         }
     } else {
-        format!("Vector '{}' not found", key)
+        format!("Vector database '{}' not found", db_key)
     }
 }
 
-fn vector_length(vectors: &HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
-    if parts.len() != 2 {
-        return "Usage: VLEN <key>".to_string();
+fn search_similar_vectors(vectors: &HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
+    if parts.len() < 5 {
+        return "Usage: VSEARCH <db_key> <limit> <dim1> <dim2> ...".to_string();
     }
-    let key = parts[1];
-    if let Some(vector) = vectors.get(key) {
-        vector.len().to_string()
+    let db_key = parts[1];
+    let limit: usize = match parts[2].parse() {
+        Ok(l) => l,
+        Err(_) => return "Invalid limit".to_string(),
+    };
+    let query: Vec<f32> = parts[3..].iter().filter_map(|s| s.parse().ok()).collect();
+
+    if let Some(db) = vectors.get(db_key) {
+        let results = db.search_similar(&query, limit);
+        format!("{:?}", results)
     } else {
-        format!("Vector '{}' not found", key)
+        format!("Vector database '{}' not found", db_key)
+    }
+}
+
+fn vector_db_length(vectors: &HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
+    if parts.len() != 2 {
+        return "Usage: VLEN <db_key>".to_string();
+    }
+    let db_key = parts[1];
+    if let Some(db) = vectors.get(db_key) {
+        db.len().to_string()
+    } else {
+        format!("Vector database '{}' not found", db_key)
     }
 }
 
 fn set_vector_ttl(vectors: &mut HashMap<String, LunarVector>, parts: Vec<&str>) -> String {
-    if parts.len() != 3 {
-        return "Usage: VTTL <key> <seconds>".to_string();
+    if parts.len() != 4 {
+        return "Usage: VTTL <db_key> <vector_id> <seconds>".to_string();
     }
-    let key = parts[1];
-    let seconds: u64 = match parts[2].parse() {
+    let db_key = parts[1];
+    let vector_id = parts[2];
+    let seconds: u64 = match parts[3].parse() {
         Ok(s) => s,
         Err(_) => return "Invalid TTL value".to_string(),
     };
-    if let Some(vector) = vectors.get_mut(key) {
-        vector.set_ttl(Duration::from_secs(seconds));
-        "OK".to_string()
+    if let Some(db) = vectors.get_mut(db_key) {
+        if db.set_ttl(vector_id, Duration::from_secs(seconds)) {
+            "OK".to_string()
+        } else {
+            format!("Vector '{}' not found in database '{}'", vector_id, db_key)
+        }
     } else {
-        format!("Vector '{}' not found", key)
+        format!("Vector database '{}' not found", db_key)
     }
+}
+
+fn cleanup_expired_vectors(vectors: &mut HashMap<String, LunarVector>) -> String {
+    for db in vectors.values_mut() {
+        db.cleanup_expired();
+    }
+    "Expired vectors cleaned up".to_string()
 }
 
 fn help() -> String {
     "Available commands:
-    VCREATE <key> - Create a new vector
-    VPUSH <key> <value> - Push a value to the end of the vector
-    VPOP <key> - Remove and return the last element from the vector
-    VGET <key> <index> - Get the value at the specified index
-    VLEN <key> - Get the length of the vector
-    VTTL <key> <seconds> - Set the TTL for the vector
+    VCREATE <db_key> - Create a new vector database
+    VADD <db_key> <vector_id> <dim1> <dim2> ... - Add a vector to the database
+    VGET <db_key> <vector_id> - Get a vector from the database
+    VSEARCH <db_key> <limit> <dim1> <dim2> ... - Search for similar vectors
+    VLEN <db_key> - Get the number of vectors in the database
+    VTTL <db_key> <vector_id> <seconds> - Set the TTL for a vector
+    VCLEANUP - Remove expired vectors from all databases
     QUIT - Exit the program
     HELP - Show this help message".to_string()
 }

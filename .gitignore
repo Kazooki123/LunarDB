@@ -4,6 +4,9 @@ lunardb_server.exe
 # test
 test/
 
+# .vscode
+.vscode/
+
 # src
 src/hello
 src/lunar2.exe

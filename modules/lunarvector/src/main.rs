@@ -7,9 +7,9 @@ use vector::LunarVector;
 use commands::execute_command;
 
 fn main() {
-    let mut vectors: HashMap<String, LunarVector> = HashMap::new();
+    let mut vector_dbs: HashMap<String, LunarVector> = HashMap::new();
 
-    println!("Welcome to LunarVector module for LunarDB!");
+    println!("Welcome to LunarVector - Vector Database Module for LunarDB!");
     println!("Type 'HELP' for available commands.");
 
     loop {
@@ -21,7 +21,7 @@ fn main() {
             break;
         }
 
-        let result = execute_command(&mut vectors, input);
+        let result = execute_command(&mut vector_dbs, input);
         println!("{}", result);
     }
 
