@@ -1,0 +1,31 @@
+name: C++ and Rust Testing Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-lunar-exe:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run lunar.exe
+      run: ./bin/lunar.exe
+      
+  test-rust-modules:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [lunarvector, lunarjson]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+    - name: Run Rust module tests
+      run: |
+        cd modules/${{ matrix.module }}
+        cargo run
