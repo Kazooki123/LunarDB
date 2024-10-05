@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-test-cpp:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v2
     - name: Install g++
@@ -24,6 +25,7 @@ jobs:
 
   test-rust-modules:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         module: [lunarvector, lunarjson]
