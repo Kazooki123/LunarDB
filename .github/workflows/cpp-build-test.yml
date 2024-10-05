@@ -39,4 +39,4 @@ jobs:
       run: ctest
 
     - name: Run executable
-      run: ./build/src/your_executable_name_here
+      run: ./build/

@@ -79,7 +79,11 @@ impl LunarJSON {
 
     pub fn push_to_array(&mut self, key: &str, path: &str, value: Value) -> Result<(), String> {
         if let Some(json) = self.data.get_mut(key) {
-            if let Some(array) = self.get_mut_array(json, path) {
+            // Temporarily take out the mutable reference
+            let json_ref = json as *mut Value;
+
+            // Now we can call get_mut_array without violating the borrow rules
+            if let Some(array) = unsafe { self.get_mut_array(&mut *json_ref, path) } {
                 array.push(value);
                 return Ok(());
             }
@@ -89,7 +93,8 @@ impl LunarJSON {
 
     pub fn pop_from_array(&mut self, key: &str, path: &str) -> Result<Option<Value>, String> {
         if let Some(json) = self.data.get_mut(key) {
-            if let Some(array) = self.get_mut_array(json, path) {
+            let json_ref = json as *mut Value;
+            if let Some(array) = unsafe { self.get_mut_array(&mut *json_ref, path) } {
                 return Ok(array.pop());
             }
         }
