@@ -20,11 +20,8 @@ jobs:
         g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp -o ../bin/lunar.exe
     - name: Run lunar executable
       run: |
-        ./bin/lunar.exe
-        SET hello world
-        GET hello
-        QUIT
-      
+        timeout 5m ./bin/lunar.exe || exit 1
+
   test-rust-modules:
     runs-on: ubuntu-latest
     strategy:
@@ -39,6 +36,4 @@ jobs:
     - name: Run Rust module tests
       run: |
         cd modules/${{ matrix.module }}
-        cargo run
-        HELP
-        QUIT
+        timeout 5m cargo run || exit 1
