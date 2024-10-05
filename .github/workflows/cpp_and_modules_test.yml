@@ -7,14 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  test-lunar-exe:
+  build-and-test-cpp:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Make lunar.exe executable
-      run: chmod +x ./bin/lunar.exe
-    - name: Run lunar.exe
-      run: ./bin/lunar.exe
+    - name: Install g++
+      run: sudo apt-get update && sudo apt-get install -y g++
+    - name: Compile C++ code
+      run: g++ -std=c++17 -o lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp module.cpp
+    - name: Run lunar executable
+      run: ./lunar
       
   test-rust-modules:
     runs-on: ubuntu-latest
