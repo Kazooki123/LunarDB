@@ -44,6 +44,8 @@ void printHelp() {
               << "KEYS - List all keys\n"
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
               << "CLEAR - Clear all key-value pairs\n"
+              << "MODULE ADD - Adds a module to your LunarDB modules if needed\n"
+              << "MODULE LIST - Lists all modules you have downloaded\n"
               << "SIZE - Get the number of key-value pairs\n"
               << "CLEANUP - Remove expired entries\n"
               << "SAVE filename - Save the cache to a file\n"
@@ -72,14 +74,13 @@ void printLunarLogo() {
 int main() {
     Cache cache(1000); // Create a cache with a maximum of 1000 entries
     SQL sql(cache);
+    ModuleManager moduleManager;
     std::string command, line;
     Mode currentMode = Mode::SCHEMALESS;
-
 
     std::cout << "Welcome to Lunar! A Redis-like cache database!\n";
     printLunarLogo();
     printHelp();
-
 
     while (true) {
         std::cout << "> ";
@@ -108,36 +109,6 @@ int main() {
             continue;
         }
 
-        else if (command == "MODULE") {
-            std::string subCommand;
-            iss >> subCommand;
-            
-            if (subCommand == "ADD") {
-                std::string moduleName;
-                if (iss >> moduleName) {
-                    if (moduleManager.addModule(moduleName)) {
-                        std::cout << "Module " << moduleName << " added successfully.\n";
-                    } else {
-                        std::cout << "Module " << moduleName << " already exists.\n";
-                    }
-                } else {
-                    std::cout << "Invalid MODULE ADD command. Usage: MODULE ADD <module_name>\n";
-                }
-            } else if (subCommand == "LIST") {
-                auto modules = moduleManager.listModules();
-                if (modules.empty()) {
-                    std::cout << "No modules installed.\n";
-                } else {
-                    std::cout << "Installed modules:\n";
-                    for (const auto& module : modules) {
-                        std::cout << "- " << module << "\n";
-                    }
-                }
-            } else {
-                std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST\n";
-            }
-        }
-
         if (currentMode == Mode::SQL) {
             std::string result = sql.executeQuery(line);
             std::cout << result << "\n";
@@ -163,6 +134,34 @@ int main() {
                     }
                 } else {
                     std::cout << "Invalid GET command\n";
+                }
+            } else if (command == "MODULE") {
+                std::string subCommand;
+                iss >> subCommand;
+            
+                if (subCommand == "ADD") {
+                    std::string moduleName;
+                    if (iss >> moduleName) {
+                        if (moduleManager.addModule(moduleName)) {
+                            std::cout << "Module " << moduleName << " added successfully.\n";
+                        } else {
+                            std::cout << "Module " << moduleName << " already exists.\n";
+                        }
+                    } else {
+                        std::cout << "Invalid MODULE ADD command. Usage: MODULE ADD <module_name>\n";
+                    }
+                } else if (subCommand == "LIST") {
+                    auto modules = moduleManager.listModules();
+                    if (modules.empty()) {
+                        std::cout << "No modules installed.\n";
+                    } else {
+                        std::cout << "Installed modules:\n";
+                        for (const auto& module : modules) {
+                            std::cout << "- " << module << "\n";
+                        }
+                    }
+                } else {
+                    std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST\n";
                 }
             } else if (command == "DEL") {
                 std::string key;

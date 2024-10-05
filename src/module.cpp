@@ -4,7 +4,7 @@
 
 namespace fs = std::filesystem;
 
-ModuleManager::ModuleManager() : modulePath("module/") {
+ModuleManager::ModuleManager() : modulePath("modules/") {
     loadExistingModules();
 }
 
