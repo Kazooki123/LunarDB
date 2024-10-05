@@ -13,16 +13,13 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install g++
       run: sudo apt-get update && sudo apt-get install -y g++
-    - name: Go to src/
-      run: cd src/
     - name: Compile C++ code
-      run: g++ -std=c++17 -o lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp module.cpp
-    - name: Go to bin by escaping src
-      run: cd ..
-    - name: Go to bin now
-      run: cd bin/
+      run: |
+        mkdir -p bin
+        cd src
+        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp -o ../bin/lunar.exe
     - name: Run lunar executable
-      run: ./lunar
+      run: ./bin/lunar.exe
       
   test-rust-modules:
     runs-on: ubuntu-latest
@@ -39,3 +36,4 @@ jobs:
       run: |
         cd modules/${{ matrix.module }}
         cargo run
+        HELP

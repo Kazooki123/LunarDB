@@ -64,7 +64,7 @@ One of the project maintainers will review your pull request, provide feedback i
 If you're recompiling lunar.exe make sure to run this command with [g++](https://gcc.gnu.org/):
 
 ```bash
-g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp -o lunar.exe
+g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp -o ../bin/lunar.exe
 ```
 
 ## Contribution Guidelines
