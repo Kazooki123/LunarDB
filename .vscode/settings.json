@@ -3,4 +3,5 @@
   "editor.formatOnSave": true,
   "editor.fontFamily": "Consolas, 'Courier New', monospace",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font",
+  "C_Cpp.errorSquiggles": "disabled"
 }

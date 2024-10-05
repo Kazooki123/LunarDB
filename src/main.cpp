@@ -6,6 +6,7 @@
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
+#include "module.h"
 #include <algorithm>
 
 enum class Mode {
@@ -107,169 +108,199 @@ int main() {
             continue;
         }
 
+        else if (command == "MODULE") {
+            std::string subCommand;
+            iss >> subCommand;
+            
+            if (subCommand == "ADD") {
+                std::string moduleName;
+                if (iss >> moduleName) {
+                    if (moduleManager.addModule(moduleName)) {
+                        std::cout << "Module " << moduleName << " added successfully.\n";
+                    } else {
+                        std::cout << "Module " << moduleName << " already exists.\n";
+                    }
+                } else {
+                    std::cout << "Invalid MODULE ADD command. Usage: MODULE ADD <module_name>\n";
+                }
+            } else if (subCommand == "LIST") {
+                auto modules = moduleManager.listModules();
+                if (modules.empty()) {
+                    std::cout << "No modules installed.\n";
+                } else {
+                    std::cout << "Installed modules:\n";
+                    for (const auto& module : modules) {
+                        std::cout << "- " << module << "\n";
+                    }
+                }
+            } else {
+                std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST\n";
+            }
+        }
+
         if (currentMode == Mode::SQL) {
             std::string result = sql.executeQuery(line);
             std::cout << result << "\n";
         } else {
             if (command == "SET") {
-            std::string key, value;
-            int ttl = 0;
-            if (iss >> key >> value) {
-                iss >> ttl;
-                cache.set(key, value, ttl);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid SET command\n";
-            }
-        } else if (command == "GET") {
-            std::string key;
-            if (iss >> key) {
-                std::string result = cache.get(key);
-                if (!result.empty()) {
-                    std::cout << result << "\n";
-                } else {
-                    std::cout << "(nil)\n";
-                }
-            } else {
-                std::cout << "Invalid GET command\n";
-            }
-        } else if (command == "DEL") {
-            std::string key;
-            if (iss >> key) {
-                if (cache.del(key)) {
+                std::string key, value;
+                int ttl = 0;
+                if (iss >> key >> value) {
+                    iss >> ttl;
+                    cache.set(key, value, ttl);
                     std::cout << "OK\n";
                 } else {
-                    std::cout << "(nil)\n";
+                    std::cout << "Invalid SET command\n";
                 }
-            } else {
-                std::cout << "Invalid DEL command\n";
-            }
-        } else if (command == "MSET") {
-            std::vector<std::pair<std::string, std::string>> kvs;
-            std::string key, value;
-            while (iss >> key >> value) {
-                kvs.emplace_back(key, value);
-            }
-            if (!kvs.empty()) {
-                cache.mset(kvs);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid MSET command\n";
-            }
-        } else if (command == "MGET") {
-            std::vector<std::string> keys;
-            std::string key;
-            while (iss >> key) {
-                keys.push_back(key);
-            }
-            if (!keys.empty()) {
-                auto results = cache.mget(keys);
-                for (const auto& result : results) {
+            } else if (command == "GET") {
+                std::string key;
+                if (iss >> key) {
+                    std::string result = cache.get(key);
                     if (!result.empty()) {
                         std::cout << result << "\n";
                     } else {
                         std::cout << "(nil)\n";
                     }
-                }
-            } else {
-                std::cout << "Invalid MGET command\n";
-            }
-        } else if (command == "KEYS") {
-            auto keys = cache.keys();
-            for (const auto& key : keys) {
-                std::cout << key << "\n";
-            }
-            if (keys.empty()) {
-                std::cout << "(empty list)\n";
-            }
-        } else if (command == "CLEAR") {
-            cache.clear();
-            std::cout << "OK\n";
-        } else if (command == "SIZE") {
-            std::cout << cache.size() << "\n";
-        } else if (command == "CLEANUP") {
-            cache.cleanup_expired();
-            std::cout << "OK\n";
-        } else if (command == "SAVE") {
-            std::string filename;
-            if (iss >> filename) {
-                Saved::saveToFile(cache, filename);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid SAVE command. Usage: SAVE filename\n";
-            }
-        } else if (command == "LOAD") {
-            std::string filename;
-            if (iss >> filename) {
-                Saved::loadFromFile(cache, filename);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid LOAD command. Usage: LOAD filename\n";
-            }
-        } else if (command == "LPUSH") {
-            std::string key, value;
-            if (iss >> key >> value) {
-                cache.lpush(key, value);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid LPUSH command\n";
-            }
-        } else if (command == "LPOP") {
-            std::string key;
-            if (iss >> key) {
-                std::string value = cache.lpop(key);
-                if (!value.empty()) {
-                    std::cout << value << "\n";
                 } else {
-                    std::cout << "(nil)\n";
+                    std::cout << "Invalid GET command\n";
                 }
-            } else {
-                std::cout << "Invalid LPOP command\n";
-            }
-        } else if (command == "RPUSH") {
-            std::string key, value;
-            if (iss >> key >> value) {
-                cache.rpush(key, value);
-                std::cout << "OK\n";
-            } else {
-                std::cout << "Invalid RPUSH command\n";
-            }
-        } else if (command == "RPOP") {
-            std::string key;
-            if (iss >> key) {
-                std::string value = cache.rpop(key);
-                if (!value.empty()) {
-                    std::cout << value << "\n";
+            } else if (command == "DEL") {
+                std::string key;
+                if (iss >> key) {
+                    if (cache.del(key)) {
+                        std::cout << "OK\n";
+                    } else {
+                        std::cout << "(nil)\n";
+                    }
                 } else {
-                    std::cout << "(nil)\n";
+                    std::cout << "Invalid DEL command\n";
                 }
-            } else {
-                std::cout << "Invalid RPOP command\n";
-            }
-        } else if (command == "LRANGE") {
-            std::string key;
-            int start, stop;
-            if (iss >> key >> start >> stop) {
-                auto values = cache.lrange(key, start, stop);
-                for (const auto& value : values) {
-                    std::cout << value << "\n";
+            } else if (command == "MSET") {
+                std::vector<std::pair<std::string, std::string>> kvs;
+                std::string key, value;
+                while (iss >> key >> value) {
+                    kvs.emplace_back(key, value);
                 }
-                if (values.empty()) {
-                    std::cout << "(empty list or set)\n";
+                if (!kvs.empty()) {
+                    cache.mset(kvs);
+                    std::cout << "OK\n";
+                } else {
+                    std::cout << "Invalid MSET command\n";
                 }
+            } else if (command == "MGET") {
+                std::vector<std::string> keys;
+                std::string key;
+                while (iss >> key) {
+                    keys.push_back(key);
+                }
+                if (!keys.empty()) {
+                    auto results = cache.mget(keys);
+                    for (const auto& result : results) {
+                        if (!result.empty()) {
+                            std::cout << result << "\n";
+                        } else {
+                            std::cout << "(nil)\n";
+                        }
+                    }
+                } else {
+                    std::cout << "Invalid MGET command\n";
+                }
+            } else if (command == "KEYS") {
+                auto keys = cache.keys();
+                for (const auto& key : keys) {
+                    std::cout << key << "\n";
+                }
+                if (keys.empty()) {
+                    std::cout << "(empty list)\n";
+                }
+            } else if (command == "CLEAR") {
+                cache.clear();
+                std::cout << "OK\n";
+            } else if (command == "SIZE") {
+                std::cout << cache.size() << "\n";
+            } else if (command == "CLEANUP") {
+                cache.cleanup_expired();
+                std::cout << "OK\n";
+            } else if (command == "SAVE") {
+                std::string filename;
+                if (iss >> filename) {
+                    Saved::saveToFile(cache, filename);
+                    std::cout << "OK\n";
+                } else {
+                    std::cout << "Invalid SAVE command. Usage: SAVE filename\n";
+                }
+            } else if (command == "LOAD") {
+                std::string filename;
+                if (iss >> filename) {
+                    Saved::loadFromFile(cache, filename);
+                    std::cout << "OK\n";
+                } else {
+                    std::cout << "Invalid LOAD command. Usage: LOAD filename\n";
+                }
+            } else if (command == "LPUSH") {
+                std::string key, value;
+                if (iss >> key >> value) {
+                    cache.lpush(key, value);
+                    std::cout << "OK\n";
+                } else {
+                    std::cout << "Invalid LPUSH command\n";
+                }
+            } else if (command == "LPOP") {
+                std::string key;
+                if (iss >> key) {
+                    std::string value = cache.lpop(key);
+                    if (!value.empty()) {
+                        std::cout << value << "\n";
+                    } else {
+                        std::cout << "(nil)\n";
+                    }
+                } else {
+                    std::cout << "Invalid LPOP command\n";
+                }
+            } else if (command == "RPUSH") {
+                std::string key, value;
+                if (iss >> key >> value) {
+                    cache.rpush(key, value);
+                    std::cout << "OK\n";
+                } else {
+                    std::cout << "Invalid RPUSH command\n";
+                }
+            } else if (command == "RPOP") {
+                std::string key;
+                if (iss >> key) {
+                    std::string value = cache.rpop(key);
+                    if (!value.empty()) {
+                        std::cout << value << "\n";
+                    } else {
+                        std::cout << "(nil)\n";
+                    }
+                } else {
+                    std::cout << "Invalid RPOP command\n";
+                }
+            } else if (command == "LRANGE") {
+                std::string key;
+                int start, stop;
+                if (iss >> key >> start >> stop) {
+                    auto values = cache.lrange(key, start, stop);
+                    for (const auto& value : values) {
+                        std::cout << value << "\n";
+                    }
+                    if (values.empty()) {
+                        std::cout << "(empty list or set)\n";
+                    }
+                } else {
+                    std::cout << "Invalid LRANGE command\n";
+                }
+            } else if (command == "LLEN") {
+                std::string key;
+                if (iss >> key) {
+                    std::cout << cache.llen(key) << "\n";
+                } else {
+                    std::cout << "Invalid LLEN command\n";
+                }
+            } else if (command == "QUIT") {
+                break;
             } else {
-                std::cout << "Invalid LRANGE command\n";
-            }
-        } else if (command == "LLEN") {
-            std::string key;
-            if (iss >> key) {
-                std::cout << cache.llen(key) << "\n";
-            } else {
-                std::cout << "Invalid LLEN command\n";
-            }
-        } else if (command == "QUIT") {
-            break;
-        } else {
                 std::cout << "Unknown command. Type 'HELP' for available commands.\n";
             }
         }
