@@ -1,0 +1,21 @@
+name: Test Lunar Executable
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run_lunar_exe:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4.2.0
+
+    - name: Run lunar.exe
+      run: .\bin\lunar.exe
