@@ -13,8 +13,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install g++
       run: sudo apt-get update && sudo apt-get install -y g++
+    - name: Go to src/
+      run: cd src/
     - name: Compile C++ code
       run: g++ -std=c++17 -o lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp module.cpp
+    - name: Go to bin by escaping src
+      run: cd ..
+    - name: Go to bin now
+      run: cd bin/
     - name: Run lunar executable
       run: ./lunar
       
