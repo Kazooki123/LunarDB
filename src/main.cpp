@@ -160,8 +160,19 @@ int main() {
                             std::cout << "- " << module << "\n";
                         }
                     }
+                } else if (subCommand == "REMOVE") {
+                    std::string moduleName;
+                    if (iss >> moduleName) {
+                        if (moduleManager.removeModule(moduleName)) {
+                            std::cout << "Module " << moduleName << " removed successfully.\n";
+                        } else {
+                            std::cout << "Failed to remove module " << moduleName << ". It may not exist.\n";
+                        }
+                    } else {
+                        std::cout << "Invalid MODULE REMOVE command. Usage: MODULE REMOVE <module_name>\n";
+                    } 
                 } else {
-                    std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST\n";
+                    std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST, REMOVE\n";
                 }
             } else if (command == "DEL") {
                 std::string key;
