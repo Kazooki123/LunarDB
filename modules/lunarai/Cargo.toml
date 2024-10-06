@@ -1,0 +1,11 @@
+[package]
+name = "lunarai"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+burn = { version = "0.14.0", features = ["wgpu"] }
+tch = "0.17.0"
+ndarray = "0.16.1"
+rust-bert = "0.23.0"
+rusty-machine = "0.5.4"

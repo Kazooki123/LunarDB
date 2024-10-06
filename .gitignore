@@ -1,3 +1,6 @@
+# workflows
+.github/workflows/
+
 # LunarDB server
 lunardb_server.exe
 

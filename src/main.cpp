@@ -78,7 +78,7 @@ int main() {
     std::string command, line;
     Mode currentMode = Mode::SCHEMALESS;
 
-    std::cout << "Welcome to Lunar! A Redis-like cache database!\n";
+    std::cout << "Welcome to Lunar! A Red cache database!\n";
     printLunarLogo();
     printHelp();
 
