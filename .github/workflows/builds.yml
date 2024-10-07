@@ -1,0 +1,47 @@
+name: Cross-Platform Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            output: lunar
+          - os: macos-latest
+            output: lunar
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install gcc
+
+    - name: Compile
+      run: |
+        mkdir -p bin
+        g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp -o bin/${{ matrix.output }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: lunar-${{ matrix.os }}
+        path: bin/${{ matrix.output }}
+        
