@@ -40,8 +40,7 @@ jobs:
         g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp -o bin/${{ matrix.output }}
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: lunar-${{ matrix.os }}
         path: bin/${{ matrix.output }}
-        
