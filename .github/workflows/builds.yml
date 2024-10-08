@@ -11,11 +11,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            output: lunar
-          - os: macos-latest
-            output: lunar
 
     runs-on: ${{ matrix.os }}
 
@@ -37,10 +32,25 @@ jobs:
     - name: Compile
       run: |
         mkdir -p bin
-        g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp -o bin/${{ matrix.output }}
+        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp -o bin/lunar
 
-    - name: Upload artifact
+    - name: Create DMG (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        mkdir -p LunarDB.app/Contents/MacOS
+        cp bin/lunar LunarDB.app/Contents/MacOS/
+        hdiutil create -volname "LunarDB" -srcfolder LunarDB.app -ov -format UDZO bin/lunar.dmg
+
+    - name: Upload artifact (Linux)
+      if: matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: lunar-${{ matrix.os }}
-        path: bin/${{ matrix.output }}
+        name: lunar-linux
+        path: bin/lunar
+
+    - name: Upload artifact (macOS)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: lunar-macos
+        path: bin/lunar.dmg
