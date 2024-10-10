@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -43,14 +43,14 @@ jobs:
 
     - name: Upload artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.2
       with:
         name: lunar-linux
         path: bin/lunar
 
     - name: Upload artifact (macOS)
       if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.2
       with:
         name: lunar-macos
         path: bin/lunar.dmg

@@ -4,6 +4,9 @@ lunardb_server.exe
 # test
 test/
 
+# environment files
+*.env
+
 # .vscode
 .vscode/
 
@@ -23,3 +26,7 @@ src/hello
 # tarballz
 .tar
 .tar.gz
+
+# .idea
+**.idea/
+.idea/

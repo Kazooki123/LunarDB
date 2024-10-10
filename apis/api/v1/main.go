@@ -1,72 +1,124 @@
-package v1
+package main
 
 import (
-	"errors"
+	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/tools/go/analysis/passes/nilness"
 )
 
-type commands struct{
-
-	//retrieving each command
-	SET string		`json:"set"`
-	GET string		`json:"get"`
-	DELETE string	`json:"delete"`
-	MSET string		`json:"mset"`
-	MGET string		`json:"mget"`
-	KEY string		`json:"key"`
-	CLEAR string	`json:"clear"`
-	SIZE int		`json:"size"`
-	//cleanup, save, load and quit are set to boolean variables
-	CLEANUP string	`json:"cleanUp"` 
-	SAVE string	`json:"save"`
-	LOAD string		`json:"load"`
-	QUIT string	`json:"exit"`
+type LunarDB struct {
+	data map[string]string
+	mu   sync.RWMutex
 }
 
-// Taking a gin context in the above function and allows response
-func getcommands(c := gin.Context){
-
-	//properly formated Json
-	c.IndentedJson(http.StatusOK, commands)
-
+func NewLunarDB() *LunarDB {
+	return &LunarDB{
+		data: make(map[string]string),
+	}
 }
 
-func getcommands(id string)(*book, error){
+func (db *LunarDB) Set(key, value string) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	db.data[key] = value
+}
 
-	for i, commands := range commands{
+func (db *LunarDB) Get(key string) (string, bool) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	value, exists := db.data[key]
+	return value, exists
+}
 
-		if commands.ID == id{
-			return &commands{i}, nill
-		}
+func (db *LunarDB) Del(key string) bool {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	_, exists := db.data[key]
+	if exists {
+		delete(db.data, key)
+	}
+	return exists
+}
 
+func (db *LunarDB) Keys() []string {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	keys := make([]string, 0, len(db.data))
+	for k := range db.data {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+var db *LunarDB
+
+func main() {
+	db = NewLunarDB()
+	r := gin.Default()
+
+	// Setup routes
+	setupRoutes(r)
+
+	// Start server
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
+}
+
+func setupRoutes(r *gin.Engine) {
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to LunarDB API",
+		})
+	})
+
+	v1 := r.Group("/api/v1")
+	{
+		v1.POST("/set", setHandler)
+		v1.GET("/get/:key", getHandler)
+		v1.DELETE("/del/:key", delHandler)
+		v1.GET("/keys", keysHandler)
+	}
+}
+
+func setHandler(c *gin.Context) {
+	var request struct {
+		Key   string `json:"key" binding:"required"`
+		Value string `json:"value" binding:"required"`
 	}
 
-	return nill, errors.New("command not found")
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db.Set(request.Key, request.Value)
+	c.JSON(http.StatusOK, gin.H{"result": "OK"})
 }
 
-func commandsById(c *gin.Context){
-
-	id := c.Params("id")
-	commands, err := getcommandsById(id)
-
-	 	if err != nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H("message": "command not found")
-			return
-		}
-
-		c.IndentedJSON(http.StatusOK, commands)
+func getHandler(c *gin.Context) {
+	key := c.Param("key")
+	value, exists := db.Get(key)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Key not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"result": value})
 }
 
- func main()  {
+func delHandler(c *gin.Context) {
+	key := c.Param("key")
+	existed := db.Del(key)
+	if !existed {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Key not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"result": "OK"})
+}
 
-	router := gin.Default()
-	router.GET("/commands/:id")
-	router.GET("/database",getcommands)
-	router.Run("#") 
-	//replace # with location of your location
-	
-
- }
+func keysHandler(c *gin.Context) {
+	keys := db.Keys()
+	c.JSON(http.StatusOK, gin.H{"keys": keys})
+}

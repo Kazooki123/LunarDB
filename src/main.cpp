@@ -7,6 +7,7 @@
 #include "saved.h"
 #include "sql.h"
 #include "module.h"
+#include "sharding.h"
 #include <algorithm>
 
 enum class Mode {
@@ -43,8 +44,10 @@ void printHelp() {
               << "MGET key1 key2 ... - Get multiple values\n"
               << "KEYS - List all keys\n"
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
+              << "CONNECT - Connects to a local LunarDB server in your machine(which is launched)\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "MODULE ADD - Adds a module to your LunarDB modules if needed\n"
+              << "HASH - Hashes a key or value using SHA-256\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"
               << "SIZE - Get the number of key-value pairs\n"
               << "CLEANUP - Remove expired entries\n"
@@ -78,8 +81,8 @@ int main() {
     std::string command, line;
     Mode currentMode = Mode::SCHEMALESS;
 
-    std::cout << "Welcome to Lunar! A Red cache database!\n";
     printLunarLogo();
+    std::cout << "Welcome to Lunar! A Red cache database!\n";
     printHelp();
 
     while (true) {
