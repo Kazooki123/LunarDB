@@ -29,16 +29,11 @@ jobs:
         brew update
         brew install gcc
 
-    - name: Go to "src"
-      run: cd src/
-
     - name: Compile
       run: |
         mkdir -p bin
+        cd src
         g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp -o bin/lunar
-
-    - name: Escape src/
-      run: cd ..
 
     - name: Create DMG (macOS)
       if: matrix.os == 'macos-latest'
