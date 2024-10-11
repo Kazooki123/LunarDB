@@ -18,15 +18,57 @@ package main
 
 import (
 	"log"
+	"crypto/rand"
+    "encoding/base64"
 	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
+type APIKeyManager struct {
+    keys map[string]bool
+    mu   sync.RWMutex
+}
+
 type LunarDB struct {
 	data map[string]string
 	mu   sync.RWMutex
+}
+
+func NewAPIKeyManager() *APIKeyManager {
+    return &APIKeyManager{
+        keys: make(map[string]bool),
+    }
+}
+
+func (m *APIKeyManager) GenerateKey() string {
+    b := make([]byte, 32)
+    rand.Read(b)
+    return base64.URLEncoding.EncodeToString(b)
+}
+
+func (m *APIKeyManager) AddKey(key string) {
+    m.mu.Lock()
+    defer m.mu.Unlock()
+    m.keys[key] = true
+}
+
+func (m *APIKeyManager) ValidateKey(key string) bool {
+    m.mu.RLock()
+    defer m.mu.RUnlock()
+    return m.keys[key]
+}
+
+func APIKeyMiddleware(keyManager *APIKeyManager) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        key := c.GetHeader("X-API-Key")
+        if key == "" || !keyManager.ValidateKey(key) {
+            c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+            return
+        }
+        c.Next()
+    }
 }
 
 func NewLunarDB() *LunarDB {
@@ -68,10 +110,21 @@ func (db *LunarDB) Keys() []string {
 	return keys
 }
 
-var db *LunarDB
+var (
+	db *LunarDB
+	keyManager *APIKeyManager
+)
 
+// Main
 func main() {
 	db = NewLunarDB()
+	keyManager = NewAPIKeyManager()
+
+	// Generate and add an initial API key
+    initialKey := keyManager.GenerateKey()
+    keyManager.AddKey(initialKey)
+    log.Printf("Initial API Key: %s", initialKey)
+
 	r := gin.Default()
 
 	// Setup routes
@@ -84,13 +137,16 @@ func main() {
 }
 
 func setupRoutes(r *gin.Engine) {
+	// Public routes:
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Welcome to LunarDB API",
 		})
 	})
 
+	// Protected routes (w/ api):
 	v1 := r.Group("/api/v1")
+	v1.Use(APIKeyMiddleware(keyManager))
 	{
 		v1.POST("/set", setHandler)
 		v1.GET("/get/:key", getHandler)
