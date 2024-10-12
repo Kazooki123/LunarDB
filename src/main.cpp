@@ -91,7 +91,7 @@ int main() {
     Mode currentMode = Mode::SCHEMALESS;
 
     printLunarLogo();
-    std::cout << "Welcome to Lunar! A Red cache database!\n";
+    std::cout << "Welcome to LunarDB! A Redis-like cache database!\n";
     printHelp();
 
     while (true) {
