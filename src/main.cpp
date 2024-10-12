@@ -17,6 +17,7 @@
 #include "sql.h"
 #include "module.h"
 #include "sharding.h"
+#include "hashing.h"
 #include <algorithm>
 
 enum class Mode {
@@ -87,6 +88,7 @@ int main() {
     Cache cache(1000); // Create a cache with a maximum of 1000 entries
     SQL sql(cache);
     ModuleManager moduleManager;
+    Hashing hashing;
     std::string command, line;
     Mode currentMode = Mode::SCHEMALESS;
 
@@ -185,6 +187,26 @@ int main() {
                     } 
                 } else {
                     std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST, REMOVE\n";
+                }
+            } else if (command == "HASH" ) {
+                std::string subCommand, input;
+                int shift = 0;
+                if (iss >> subCommand >> input) {
+                    if (subCommand == "SHA256") {
+                        std::cout << Hashing::sha256(input) << "\n";
+                    } else if (subCommand == "MURMUR3") {
+                        std::cout << Hashing::murmur3_32(input) << "\n";
+                    } else if (subCommand == "ROTATE") {
+                        if (iss >> shift) {
+                            std::cout << Hashing::rotateEncrypt(input, shift) << "\n";
+                        } else {
+                            std::cout << "Invalid HASH ROTATE command. Usage: HASH ROTATE <input> <shift>\n";
+                        }
+                    } else {
+                        std::cout << "Invalid HASH subcommand. Available subcommands: SHA256, MURMUR3, ROTATE\n";
+                    }
+                } else {
+                    std::cout << "Invalid HASH command. Usage: HASH <subcommand> <input> [shift]\n";
                 }
             } else if (command == "DEL") {
                 std::string key;

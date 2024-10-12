@@ -30,3 +30,6 @@ src/hello
 # .idea
 **.idea/
 .idea/
+
+# openssl
+src/openssl/
