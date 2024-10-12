@@ -1,21 +1,27 @@
 # Security Policy
 
+When spotting a bug, error or even a **Security Vulnerability**, it's very ideal to
+report this immediately to the maintainer of **LunarDB**, the community, and to even the contributors.
+
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+**LunarDB** uses C++ and **G++/GCC*** to compile C++ files into binary machine code. Which then users and developers
+around the World can execute.
 
+C++:
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| c++17   | :white_check_mark: |
+| v.<17   | :x:                |
+
+**".<"** means below c++17, which is not supported for **LunarDB**
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+### Steps on how to `Report a Vulnerability`
+1. Create a Issue
+2. Explain how the bug works
+3. Provided steps on how to execute the bug
+4. Wait for Review
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+**NOTES:** Reviews might take time so the only thing you can do is wait patiently.
