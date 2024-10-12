@@ -12,13 +12,16 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <chrono>
+#include <algorithm>
+#include <iomanip>
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
 #include "module.h"
 #include "sharding.h"
 #include "hashing.h"
-#include <algorithm>
+
 
 enum class Mode {
     SCHEMAFULL,
@@ -36,6 +39,14 @@ void printColoredText(const std::string& text, const std::string& color) {
     } else {
         std::cout << text;
     }
+}
+
+template<typename F, typename... Args>
+double measureExecutionTime(F func, Args&&... args) {
+    auto start = std::chrono::high_resolution_clock::now();
+    func(std::forward<Args>(args)...);
+    auto end = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double, std::milli>(end - start).count();
 }
 
 void printSwitchOptions() {
@@ -56,9 +67,11 @@ void printHelp() {
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
               << "CONNECT - Connects to a local LunarDB server in your machine(which is launched)\n"
               << "CLEAR - Clear all key-value pairs\n"
-              << "MODULE ADD - Adds a module to your LunarDB modules if needed\n"
-              << "HASH - Hashes a key or value using SHA-256\n"
+              << "MODULE ADD module_name - Adds a module to your LunarDB modules if needed\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"
+              << "HASH SHA256 key - Hashes a key using SHA-256\n"
+              << "HASH MURMUR3 key - Hashes a key using the MURMUR3 encryption method\n"
+              << "HASH ROTATE input shift - Rotates a hash base on the amount of shifts\n"
               << "SIZE - Get the number of key-value pairs\n"
               << "CLEANUP - Remove expired entries\n"
               << "SAVE filename - Save the cache to a file\n"
@@ -132,23 +145,30 @@ int main() {
                 int ttl = 0;
                 if (iss >> key >> value) {
                     iss >> ttl;
-                    cache.set(key, value, ttl);
-                    std::cout << "OK\n";
+                    double executionTime = measureExecutionTime([&]() {
+                        cache.set(key, value, ttl);
+                    });
+                    std::cout << "OK (" << std::fixed << std::setprecision(3) << executionTime << "ms)\n";
                 } else {
                     std::cout << "Invalid SET command\n";
                 }
             } else if (command == "GET") {
                 std::string key;
                 if (iss >> key) {
-                    std::string result = cache.get(key);
+                    std::string result;
+                    double executionTime = measureExecutionTime([&]() {
+                        result = cache.get(key);
+                    });
                     if (!result.empty()) {
-                        std::cout << result << "\n";
+                        std::cout << result << " (" << std::fixed << std::setprecision(3) << executionTime << "ms)\n";
                     } else {
-                        std::cout << "(nil)\n";
+                        std::cout << "(nil) (" << std::fixed << std::setprecision(3) << executionTime << "ms)\n";
                     }
                 } else {
                     std::cout << "Invalid GET command\n";
                 }
+            } else if (command == "PING") {
+                std::cout << "PONG!\n";
             } else if (command == "MODULE") {
                 std::string subCommand;
                 iss >> subCommand;
