@@ -63,8 +63,33 @@ One of the project maintainers will review your pull request, provide feedback i
 
 If you're recompiling lunar.exe make sure to run this command with [g++](https://gcc.gnu.org/):
 
+Compiling for Windows:
+
 ```bash
 g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
+```
+
+Compiling for Linux:
+
+1. Open a Linux terminal (we'll use Ubuntu)
+2. Run the following commands:
+
+```bash
+sudo apt update
+sudo apt install build-essential
+```
+
+Navigate to "src/" and then
+Run this:
+
+```bash
+g++ -o ../bin/lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp
+```
+
+Compiling for MacOS:
+
+```bash
+MacOS has a variety of methods for compiling LunarDB as a CLI file.
 ```
 
 ## Contribution Guidelines
