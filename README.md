@@ -32,6 +32,12 @@ MGET key1 key2 ... - Get multiple values
 
 KEYS - List all keys
 
+HASH SHA256 key - Hashes a key using SHA-256
+
+HASH MURMUR3 key - Hashes a key using the MURMUR3 encryption method
+
+HASH ROTATE input shift - Rotates a hash base on the amount of shifts
+
 CLEAR - Clear all key-value pairs
 
 SIZE - Get the number of key-value pairs
@@ -41,6 +47,18 @@ CLEANUP - Remove expired entries
 SAVE filename - Save the cache to a file
 
 LOAD filename - Load the cache from a file
+
+LPUSH key value - Push an element to the head of the list
+
+LPOP key - Remove and return an element from the head of the list
+
+RPUSH key value - Push an element to the tail of the list
+
+RPOP key - Remove and return an element from the tail of the list
+
+LRANGE key start stop - Get a range of elements from the list
+
+LLEN key - Get the length of the list
 
 QUIT - Exit the program
 
@@ -53,6 +71,38 @@ While it can be confusing at first, they're heavily different:
 
 While it may not make sense at first, its my only choice and decision on how
 LunarDB functions, everything will changed later or sooner on.
+
+## ⚙️Compiling LunarDB
+
+When it comes to Compiling **LunarDB**, there are few methods to compile it
+Currently, We use **G++/GCC** for compiling C++ files and then output them as executables!
+
+### 🪟Compiling for Windows
+
+For Compiling the **LunarDB CLI** in **Windows**, you'll need to downlad [GCC](https://gcc.gnu.org/install/download.html)
+Once done and all setup, you can compile the C++ files with this command:
+
+```bash
+g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
+```
+
+### 🐧Compiling for Linux
+
+To compile **LunarDB** for Linux support, you'll obviously need a **Linux Terminal** for it.
+If you are using *Windows*, you'll need to install a **WSL** app (we'll use the Ubuntu WSL for simplicity)
+
+Then run this commands:
+
+```bash
+sudo apt update
+sudo apt install build-essential
+```
+
+After that, head to "src/" and run this to compile for **Linux** support:
+
+```bash
+g++ -o ../bin/lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp
+```
 
 ## 🤝CONTRIBUTIONS
 
