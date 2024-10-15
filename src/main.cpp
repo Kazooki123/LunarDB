@@ -1,12 +1,24 @@
 // Author: Kazooki123, StarloExoliz
 
-// Copyright 2024 Kazooki123
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*
+** Copyright 2024 Kazooki123
+**
+** Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+** documentation files (the “Software”), to deal in the Software without restriction, including without 
+** limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies     
+** of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following 
+** conditions:
+**
+** The above copyright notice and this permission notice shall be included in all copies or substantial 
+** portions of the Software.
+** 
+** THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+** LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+** THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+** 
+**/
 
 
 #include <iostream>
@@ -15,12 +27,14 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
+#include "lua/src/lua.hpp"
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
 #include "module.h"
 #include "sharding.h"
 #include "hashing.h"
+#include "connect.h"
 
 
 enum class Mode {
@@ -97,8 +111,63 @@ void printLunarLogo() {
 
 }
 
+/* Lua Integration */
+/*
+** But Why?
+** Since Lua is good for external scripting and custom
+** commands making, I have decided to use Lua
+** for LunarDB integration
+**/
+
+/*==========================================================================*/
+
+Cache cache(1000); // Create a cache with a maximum of 1000 entries
+lua_State* L = nullptr;
+
+int lua_set(lua_State* L) {
+    const char* key = lua_tostring(L, 1);
+    const char* value = lua_tostring(L, 2);
+    int ttl = lua_tonumber(L, 3);
+    cache.set(key, value, ttl);
+    return 0;
+}
+
+int lua_get(lua_State* L) {
+    const char* key = lua_tostring(L, 1);
+    std::string value = cache.get(key);
+    lua_pushstring(L, value.c_str());
+    return 1;
+}
+
+void initializeLua() {
+    L = luaL_newstate();
+    luaL_openlibs(L);
+    
+    lua_pushcfunction(L, lua_set);
+    lua_setglobal(L, "lunardb_set");
+    
+    lua_pushcfunction(L, lua_get);
+    lua_setglobal(L, "lunardb_get");
+}
+
+void closeLua() {
+    if (L) {
+        lua_close(L);
+    }
+}
+
+bool executeLuaScript(const std::string& script) {
+    if (luaL_dostring(L, script.c_str()) != LUA_OK) {
+        std::cerr << "Lua error: " << lua_tostring(L, -1) << std::endl;
+        return false;
+    }
+    return true;
+}
+
+/*==========================================================================*/
+
 int main() {
-    Cache cache(1000); // Create a cache with a maximum of 1000 entries
+    // Removed Cache local variable as it is moved to be global
     SQL sql(cache);
     ModuleManager moduleManager;
     Hashing hashing;
@@ -109,32 +178,13 @@ int main() {
     std::cout << "Welcome to LunarDB! A Redis-like cache database!\n";
     printHelp();
 
+    initializeLua();
+
     while (true) {
         std::cout << "> ";
         std::getline(std::cin, line);
         std::istringstream iss(line);
         iss >> command;
-
-        if (command == "SWITCH") {
-            printSwitchOptions();
-            std::string modeStr;
-            std::cin >> modeStr;
-            std::transform(modeStr.begin(), modeStr.end(), modeStr.begin(), ::toupper);
-
-            if (modeStr == "SCHEMAFULL") {
-                currentMode = Mode::SCHEMAFULL;
-                std::cout << "Switched to SCHEMAFULL mode\n";
-            } else if (modeStr == "SCHEMALESS") {
-                currentMode = Mode::SCHEMALESS;
-                std::cout << "Switched to SCHEMALESS mode\n";
-            } else if (modeStr == "SQL") {
-                currentMode = Mode::SQL;
-                std::cout << "Switched to SQL mode\n";
-            } else {
-                std::cout << "Invalid mode. Please choose SCHEMAFULL, SCHEMALESS, or SQL\n";
-            }
-            continue;
-        }
 
         if (currentMode == Mode::SQL) {
             std::string result = sql.executeQuery(line);
@@ -167,8 +217,32 @@ int main() {
                 } else {
                     std::cout << "Invalid GET command\n";
                 }
-            } else if (command == "PING") {
+            } else if (command == "ping") {
                 std::cout << "PONG!\n";
+            } else if (command == "SWITCH") {
+                printSwitchOptions();
+                std::string modeStr;
+                std::cin >> modeStr;
+                std::transform(modeStr.begin(), modeStr.end(), modeStr.begin(), ::toupper);
+
+                if (modeStr == "SCHEMAFULL") {
+                    currentMode = Mode::SCHEMAFULL;
+                    std::cout << "Switched to SCHEMAFULL mode\n";
+                } else if (modeStr == "SCHEMALESS") {
+                    currentMode = Mode::SCHEMALESS;
+                    std::cout << "Switched to SCHEMALESS mode\n";
+                } else if (modeStr == "SQL") {
+                    currentMode = Mode::SQL;
+                    std::cout << "Switched to SQL mode\n";
+                } else {
+                    std::cout << "Invalid mode. Please choose SCHEMAFULL, SCHEMALESS, or SQL\n";
+                }
+            } else if (command == "LUA") {
+                std::string script;
+                std::getline(iss, script);
+                if (executeLuaScript(script)) {
+                    std::cout << "Lua script executed successfully.\n";
+                }
             } else if (command == "MODULE") {
                 std::string subCommand;
                 iss >> subCommand;
@@ -362,6 +436,11 @@ int main() {
                 } else {
                     std::cout << "Invalid LLEN command\n";
                 }
+            } else if (command == "CONNECT") {
+                std::string IPandPort;
+                if (iss >> IPandPort) {
+                    
+                }
             } else if (command == "QUIT") {
                 break;
             } else {
@@ -370,6 +449,7 @@ int main() {
         }
     }
 
+    closeLua();
     std::cout << "Goodbye!\n";
     return 0;
 }
