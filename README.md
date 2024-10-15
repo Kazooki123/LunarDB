@@ -62,6 +62,11 @@ LLEN key - Get the length of the list
 
 QUIT - Exit the program
 
+## 🫂Community
+
+**Join** the LunarDB Community!
+- [Discord](https://discord.gg/KgxNzAZ5)
+
 ## `lunar.exe` V.S `lunardb.exe`
 
 While it can be confusing at first, they're heavily different:
