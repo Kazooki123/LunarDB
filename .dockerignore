@@ -1,0 +1,20 @@
+# Ignore unnecessary files and directories
+.git
+.github
+.vscode
+build
+bin
+obj
+*.o
+*.exe
+*.dll
+*.so
+*.dylib
+.vscode
+.idea
+*.log
+*.md
+*.yml
+Dockerfile
+.dockerignore
+modules
