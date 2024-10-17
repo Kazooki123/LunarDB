@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y g++ make liblua5.3-dev
+    apt-get install -y g++ make liblua5.4-dev
 
 # Set the working directory inside the container
 WORKDIR /usr/src/lunardb
@@ -14,7 +14,7 @@ WORKDIR /usr/src/lunardb
 COPY . .
 
 # Compile LunarDB in a single RUN command to improve layer efficiency
-RUN g++ -std=c++17 -o bin/lunar src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp src/hashing.cpp && \
+RUN g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp src/hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o bin/lunar && \
     chmod +x bin/lunar
 
 # Command to run LunarDB when the container starts
