@@ -27,7 +27,13 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
-#include "lua/src/lua.hpp"
+
+extern "C" {
+    #include "lua/src/lua.h"
+    #include "lua/src/lauxlib.h"
+    #include "lua/src/lualib.h"
+}
+
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
@@ -90,6 +96,7 @@ void printHelp() {
               << "CLEANUP - Remove expired entries\n"
               << "SAVE filename - Save the cache to a file\n"
               << "LOAD filename - Load the cache from a file\n"
+              << "LUA dofile <file_to_your_lua_script> \n"
               << "LPUSH key value - Push an element to the head of the list\n"
               << "LPOP key - Remove and return an element from the head of the list\n"
               << "RPUSH key value - Push an element to the tail of the list\n"
@@ -121,22 +128,40 @@ void printLunarLogo() {
 
 /*==========================================================================*/
 
-Cache cache(1000); // Create a cache with a maximum of 1000 entries
+Cache cache(1000);
 lua_State* L = nullptr;
 
+// Wrapper function to handle C++ exceptions
+template<typename Func>
+static int lua_cppfunction(lua_State* L, Func f) {
+    try {
+        return f(L);
+    } catch (const std::exception& e) {
+        lua_pushstring(L, e.what());
+        return lua_error(L);
+    } catch (...) {
+        lua_pushstring(L, "Unknown C++ exception");
+        return lua_error(L);
+    }
+}
+
 int lua_set(lua_State* L) {
-    const char* key = lua_tostring(L, 1);
-    const char* value = lua_tostring(L, 2);
-    int ttl = lua_tonumber(L, 3);
-    cache.set(key, value, ttl);
-    return 0;
+    return lua_cppfunction(L, [](lua_State* L) {
+        const char* key = luaL_checkstring(L, 1);
+        const char* value = luaL_checkstring(L, 2);
+        int ttl = luaL_optinteger(L, 3, 0);
+        cache.set(key, value, ttl);
+        return 0;
+    });
 }
 
 int lua_get(lua_State* L) {
-    const char* key = lua_tostring(L, 1);
-    std::string value = cache.get(key);
-    lua_pushstring(L, value.c_str());
-    return 1;
+    return lua_cppfunction(L, [](lua_State* L) {
+        const char* key = luaL_checkstring(L, 1);
+        std::string value = cache.get(key);
+        lua_pushstring(L, value.c_str());
+        return 1;
+    });
 }
 
 void initializeLua() {
@@ -153,18 +178,20 @@ void initializeLua() {
 void closeLua() {
     if (L) {
         lua_close(L);
+        L = nullptr;
     }
 }
 
 bool executeLuaScript(const std::string& script) {
     if (luaL_dostring(L, script.c_str()) != LUA_OK) {
         std::cerr << "Lua error: " << lua_tostring(L, -1) << std::endl;
+        lua_pop(L, 1);  // Remove error message from stack
         return false;
     }
     return true;
 }
 
-/*==========================================================================*/
+/*==================================END=====================================*/
 
 int main() {
     // Removed Cache local variable as it is moved to be global

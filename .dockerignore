@@ -3,7 +3,6 @@
 .github
 .vscode
 build
-bin
 obj
 *.o
 *.exe
