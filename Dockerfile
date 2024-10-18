@@ -1,21 +1,16 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
-# Set environment variables to avoid prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
+RUN apk add --no-cache g++ make lua5.4-dev
 
-# Install required packages
-RUN apt-get update && \
-    apt-get install -y g++ make liblua5.4-dev
-
-# Set the working directory inside the container
 WORKDIR /usr/src/lunardb
 
-# Copy all files from the current directory into the container
 COPY . .
 
-# Compile LunarDB in a single RUN command to improve layer efficiency
-RUN g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp src/hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o bin/lunar && \
+RUN mkdir -p modules
+
+RUN g++ -std=c++17 src/main.cpp src/cache.cpp src/saved.cpp src/sql.cpp src/module.cpp src/hashing.cpp -I/usr/include/lua5.4 -o bin/lunar $(pkg-config --libs lua5.4) && \
     chmod +x bin/lunar
 
-# Command to run LunarDB when the container starts
-CMD ["./bin/lunar"]
+WORKDIR /usr/src/lunardb/bin
+
+CMD ["./lunar"]
