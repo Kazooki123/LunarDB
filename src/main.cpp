@@ -1,4 +1,4 @@
-// Author: Kazooki123, StarloExoliz
+// Author: Kazooki123, StarloExoliz, Smartlinuxcoder
 
 /*
 ** Copyright 2024 Kazooki123
@@ -29,10 +29,11 @@
 #include <iomanip>
 
 extern "C" {
-    #include "lua/src/lua.h"
-    #include "lua/src/lauxlib.h"
-    #include "lua/src/lualib.h"
+    #include <lua5.4/lua.h>
+    #include <lua5.4/lauxlib.h>
+    #include <lua5.4/lualib.h>
 }
+
 
 #include "cache.h"
 #include "saved.h"
