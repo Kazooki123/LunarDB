@@ -85,7 +85,7 @@ void printHelp() {
               << "MGET key1 key2 ... - Get multiple values\n"
               << "KEYS - List all keys\n"
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
-              << "CONNECT - Connects to a local LunarDB server in your machine(which is launched)\n"
+              << "CONNECT - Connects to a local LunarDB server in your machine (which is launched)\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "MODULE ADD module_name - Adds a module to your LunarDB modules if needed\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"

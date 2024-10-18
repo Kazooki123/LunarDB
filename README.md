@@ -82,6 +82,13 @@ LunarDB functions, everything will changed later or sooner on.
 When it comes to Compiling **LunarDB**, there are few methods to compile it
 Currently, We use **G++/GCC** for compiling C++ files and then output them as executables!
 
+### Important Note
+
+**Note:** You would need:
+
+- The Source codes for **Lua v5.4.4**
+- For Linux this would be `liblua5.4-dev` (Ubuntu) and `lua-dev` (Arch)
+
 ### 🪟Compiling for Windows
 
 For Compiling the **LunarDB CLI** in **Windows**, you'll need to downlad [GCC](https://gcc.gnu.org/install/download.html)
