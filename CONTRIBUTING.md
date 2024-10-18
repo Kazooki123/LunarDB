@@ -83,7 +83,7 @@ Navigate to "src/" and then
 Run this:
 
 ```bash
-g++ -o ../bin/lunar main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp
+g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o ../bin/lunar
 ```
 
 Compiling for MacOS:
