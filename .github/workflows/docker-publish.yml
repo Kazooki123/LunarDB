@@ -31,7 +31,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true 
-          tags: Your dockerhub username/lunardb:latest
+          tags: kazookilovescoding/lunardb:latest
 
       - name: Logout from Docker Hub
         run: docker logout
