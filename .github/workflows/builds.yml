@@ -21,19 +21,19 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential
+        sudo apt-get install -y build-essential liblua5.4-dev
 
     - name: Install dependencies (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         brew update
-        brew install gcc
+        brew install gcc lua@5.4.4
 
     - name: Compile
       run: |
         mkdir -p bin
         cd src
-        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar
+        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o ../bin/lunar
 
     - name: Create DMG (macOS)
       if: matrix.os == 'macos-latest'
