@@ -27,7 +27,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew update
-        brew install gcc lua@5.4.4
+        brew install gcc lua@5.3
 
     - name: Compile
       run: |
