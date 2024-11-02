@@ -105,7 +105,7 @@ If you encounter any bugs or have feature requests, please open an issue on our 
 
 ## Code of Conduct
 
-We are committed to fostering a welcoming and inclusive environment. Please read our [Code of Conduct](link-to-code-of-conduct) to understand our expectations for behavior in the community.
+We are committed to fostering a welcoming and inclusive environment. Please read our [Code of Conduct](CODE_OF_CONDUCT) to understand our expectations for behavior in the community.
 
 Once again, thank you for contributing to LunarDB. We look forward to your contributions!
 

@@ -43,6 +43,10 @@ extern "C" {
 #include "hashing.h"
 #include "connect.h"
 
+#include "providers/provider.hpp"
+#include "providers/registry.hpp"
+#include "providers/postgresql_provider.hpp"
+
 
 enum class Mode {
     SCHEMAFULL,
@@ -266,6 +270,32 @@ int main() {
                 } else {
                     std::cout << "Invalid mode. Please choose SCHEMAFULL, SCHEMALESS, or SQL\n";
                 }
+            } else if (command == "PROVIDER") {
+                std::string subCommand;
+                iss >> subCommand;
+    
+                if (subCommand == "LIST") {
+                    auto providers = providers::ProviderRegistry::instance().getAvailableProviders();
+                    std::cout << "Available providers:\n";
+                    for (const auto& provider : providers) {
+                        std::cout << "- " << provider << "\n";
+                    }
+                } else if (subCommand == "ATTACH") {
+                    std::string providerName;
+                    if (iss >> providerName) {
+                        auto provider = providers::ProviderRegistry::instance().createProvider(providerName);
+                        if (provider && cache.attachProvider(std::move(provider))) {
+                            std::cout << "Provider " << providerName << " attached successfully\n";
+                        } else {
+                            std::cout << "Failed to attach provider " << providerName << "\n";
+                        }
+                    }
+                } else if (subCommand == "DETACH") {
+                    cache.detachProvider();
+                    std::cout << "Provider detached\n";
+                } else {
+                    std::cout << "Unknown PROVIDER subcommand. Available subcommands: LIST, ATTACH and DETACH. \n";
+                }
             } else if (command == "LUA") {
                 std::string script;
                 std::getline(iss, script);
@@ -470,6 +500,8 @@ int main() {
                 if (iss >> IPandPort) {
                     
                 }
+            } else if (command == "HELP") {
+                printLunarLogo();
             } else if (command == "QUIT") {
                 break;
             } else {

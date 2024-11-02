@@ -7,6 +7,9 @@
 #include <chrono>
 #include <vector>
 #include <utility>
+#include <memory>
+#include "providers/provider.hpp"
+
 
 class Cache {
 private:
@@ -66,10 +69,49 @@ private:
 
     std::unordered_map<std::string, CacheEntry> data;
     size_t max_size;
+    std::unique_ptr<lunardb::providers::Provider> provider_;
+
     void evict_if_needed();
+
+    // Helper method for provider synchronization
+    void syncWithProvider(const std::string& key, const CacheEntry& entry) {
+        if (!provider_) return;
+        
+        if (entry.is_list) {
+            // Convert list to string representation for provider storage
+            std::string serialized;
+            for (const auto& item : entry.list_value) {
+                serialized += item + "\n";  // Use newline as delimiter
+            }
+            provider_->set(key, serialized, 
+                entry.has_expiry ? std::chrono::duration_cast<std::chrono::seconds>(
+                    entry.expiry - std::chrono::steady_clock::now()).count() : 0);
+        } else {
+            provider_->set(key, entry.string_value,
+                entry.has_expiry ? std::chrono::duration_cast<std::chrono::seconds>(
+                    entry.expiry - std::chrono::steady_clock::now()).count() : 0);
+        }
+    }
 
 public:
     Cache(size_t max_size = 1000);
+
+    // Provider management methods
+    bool attachProvider(std::unique_ptr<lunardb::providers::Provider> provider) {
+        if (provider && provider->isConnected()) {
+            provider_ = std::move(provider);
+            return true;
+        }
+        return false;
+    }
+
+    void detachProvider() {
+        provider_.reset();
+    }
+
+    bool hasProvider() const {
+        return provider_ != nullptr;
+    }
 
     void set(const std::string& key, const std::string& value, int ttl_seconds = 0);
     std::string get(const std::string& key) const;  // Changed to const
