@@ -9,11 +9,11 @@
 #include <utility>
 #include <memory>
 #include "providers/provider.hpp"
-
+#include "providers/registry.hpp"
 
 class Cache {
 private:
-  struct CacheEntry {
+    struct CacheEntry {
         union {
             std::string string_value;
             std::list<std::string> list_value;
@@ -72,16 +72,14 @@ private:
     std::unique_ptr<lunardb::providers::Provider> provider_;
 
     void evict_if_needed();
-
-    // Helper method for provider synchronization
+    
     void syncWithProvider(const std::string& key, const CacheEntry& entry) {
         if (!provider_) return;
         
         if (entry.is_list) {
-            // Convert list to string representation for provider storage
             std::string serialized;
             for (const auto& item : entry.list_value) {
-                serialized += item + "\n";  // Use newline as delimiter
+                serialized += item + "\n";
             }
             provider_->set(key, serialized, 
                 entry.has_expiry ? std::chrono::duration_cast<std::chrono::seconds>(
@@ -94,9 +92,8 @@ private:
     }
 
 public:
-    Cache(size_t max_size = 1000);
-
-    // Provider management methods
+    explicit Cache(size_t max_size = 1000);
+    
     bool attachProvider(std::unique_ptr<lunardb::providers::Provider> provider) {
         if (provider && provider->isConnected()) {
             provider_ = std::move(provider);
@@ -114,20 +111,17 @@ public:
     }
 
     void set(const std::string& key, const std::string& value, int ttl_seconds = 0);
-    std::string get(const std::string& key) const;  // Changed to const
+    std::string get(const std::string& key) const;
     bool del(const std::string& key);
     void clear();
     size_t size() const;
-
-    // Batch operations
+    
     void mset(const std::vector<std::pair<std::string, std::string>>& kvs);
-    std::vector<std::string> mget(const std::vector<std::string>& keys) const;  // Changed to const
-
-    // Utility methods
-    std::vector<std::string> keys() const;  // Already const
+    std::vector<std::string> mget(const std::vector<std::string>& keys) const;
+    
+    std::vector<std::string> keys() const;
     void cleanup_expired();
-
-    // (New) List methods
+    
     void lpush(const std::string& key, const std::string& value);
     std::string lpop(const std::string& key);
     void rpush(const std::string& key, const std::string& value);

@@ -34,6 +34,11 @@ extern "C" {
     #include <lua5.4/lualib.h>
 }
 
+// extern "C" {
+//    #include "lua/src/lua.h"
+//    #include "lua/src/lauxlib.h"
+//    #include "lua/src/lualib.h"
+// }
 
 #include "cache.h"
 #include "saved.h"
@@ -45,7 +50,7 @@ extern "C" {
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
-#include "providers/postgresql_provider.hpp"
+// #include "providers/postgresql_provider.hpp"
 
 
 enum class Mode {
@@ -273,9 +278,9 @@ int main() {
             } else if (command == "PROVIDER") {
                 std::string subCommand;
                 iss >> subCommand;
-    
+
                 if (subCommand == "LIST") {
-                    auto providers = providers::ProviderRegistry::instance().getAvailableProviders();
+                    auto providers = lunardb::providers::ProviderRegistry::instance().getAvailableProviders();
                     std::cout << "Available providers:\n";
                     for (const auto& provider : providers) {
                         std::cout << "- " << provider << "\n";
@@ -283,11 +288,29 @@ int main() {
                 } else if (subCommand == "ATTACH") {
                     std::string providerName;
                     if (iss >> providerName) {
-                        auto provider = providers::ProviderRegistry::instance().createProvider(providerName);
-                        if (provider && cache.attachProvider(std::move(provider))) {
-                            std::cout << "Provider " << providerName << " attached successfully\n";
+                        auto provider = lunardb::providers::ProviderRegistry::instance().createProvider(providerName);
+                        if (provider) {
+                            lunardb::providers::ProviderConfig config;
+                            // Get connection details from user
+                            std::cout << "Enter host: ";
+                            std::getline(std::cin, config.host);
+                            std::cout << "Enter port: ";
+                            std::cin >> config.port;
+                            std::cin.ignore();
+                            std::cout << "Enter username: ";
+                            std::getline(std::cin, config.username);
+                            std::cout << "Enter password: ";
+                            std::getline(std::cin, config.password);
+                            std::cout << "Enter database: ";
+                            std::getline(std::cin, config.database);
+
+                            if (provider->connect(config) && cache.attachProvider(std::move(provider))) {
+                                std::cout << "Provider " << providerName << " attached successfully\n";
+                            } else {
+                                std::cout << "Failed to connect to provider " << providerName << "\n";
+                            }
                         } else {
-                            std::cout << "Failed to attach provider " << providerName << "\n";
+                            std::cout << "Failed to create provider " << providerName << "\n";
                         }
                     }
                 } else if (subCommand == "DETACH") {
@@ -500,12 +523,10 @@ int main() {
                 if (iss >> IPandPort) {
                     
                 }
-            } else if (command == "HELP") {
-                printLunarLogo();
             } else if (command == "QUIT") {
                 break;
             } else {
-                std::cout << "Unknown command. Type 'HELP' for available commands.\n";
+                std::cout << "Unknown command. Check for LunarDB commands ABOVE.\n";
             }
         }
     }
