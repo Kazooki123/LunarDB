@@ -65,17 +65,8 @@ QUIT - Exit the program
 ## 🫂Community
 
 **Join** the LunarDB Community!
+
 - [Discord](https://discord.gg/KgxNzAZ5)
-
-## `lunar.exe` V.S `lunardb.exe`
-
-While it can be confusing at first, they're heavily different:
-
-- lunar.exe - Is the CLI for LunarDB with commands you can execute for your database.
-- lunardb.exe - Launches the local **LunarDB Server** using the `lunardb serve` command.
-
-While it may not make sense at first, its my only choice and decision on how
-LunarDB functions, everything will changed later or sooner on.
 
 ## ⚙️Compiling LunarDB
 

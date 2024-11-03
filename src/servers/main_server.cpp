@@ -5,7 +5,6 @@
 #include <string_view>
 
 namespace fs = std::filesystem;
-
 namespace {
     std::unique_ptr<Server> server;
 
@@ -20,7 +19,7 @@ namespace {
     struct ServerConfig {
         std::string host = "127.0.0.1";
         uint16_t port = 6379;  // Same default port as Redis
-        std::string config_file = "lunardb.json";
+        std::string config_file = "../src/servers/lunardb.json";
     };
 
     [[nodiscard]] ServerConfig parse_arguments(int argc, char* argv[]) {

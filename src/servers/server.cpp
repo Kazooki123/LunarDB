@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 #include <filesystem>
 #include <charconv>
 
@@ -207,29 +207,26 @@ void Server::initializeCommandHandlers() {
 }
 
 bool Server::loadConfig(std::string_view config_file) {
-    if (!fs::exists(config_file)) {
-        return false;
-    }
+    std::ifstream file{std::string(config_file)};  // Fix vexing parse by using curly braces
 
-    std::ifstream file(std::string(config_file));
     if (!file.is_open()) {
+        std::cerr << "Error: Could not open config file: " << config_file << std::endl;
         return false;
     }
 
-    Json::Value root;
     Json::CharReaderBuilder builder;
-    JSONCPP_STRING errs;
-    
+    Json::Value root;
+    std::string errs;
+
     if (!Json::parseFromStream(builder, file, &root, &errs)) {
+        std::cerr << "Error: Failed to parse config file: " << errs << std::endl;
         return false;
     }
 
-    if (root.isMember("max_clients")) {
-        max_clients_ = root["max_clients"].asUInt64();
-    }
-    
+    // Process `root` as needed
     return true;
 }
+
 
 void Server::setMaxClients(size_t max_clients) {
     max_clients_ = max_clients;
