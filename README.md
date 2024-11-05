@@ -61,6 +61,28 @@ LRANGE key start stop - Get a range of elements from the list
 LLEN key - Get the length of the list
 
 QUIT - Exit the program
+ 
+## Docker
+
+A **Guide** how to use **LunarDB** using Docker!
+
+### Pull
+
+First, pull the lunardb docker image:
+
+```bash
+docker pull kazookilovescoding/lunardb
+```
+
+### Run it
+
+For running the lunardb docker image:
+
+```bash
+docker run kazookilovescoding/lunardb
+```
+
+And you're done! You should have the **LunarDB** Docker Image in your machine now!
 
 ## 🫂Community
 
