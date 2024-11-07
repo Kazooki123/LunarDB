@@ -50,8 +50,7 @@ extern "C" {
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
-// #include "providers/postgresql_provider.hpp"
-
+#include "providers/postgresql_provider.hpp"
 
 enum class Mode {
     SCHEMAFULL,
@@ -86,6 +85,55 @@ void printSwitchOptions() {
     printColoredText("> SQL\n", "red");
 }
 
+void printProviderHelp() {
+    std::cout << "Provider commands:\n"
+              << "  PROVIDER LIST                - List all available database providers\n"
+              << "  PROVIDER ATTACH <name>       - Connect to a database provider\n"
+              << "  PROVIDER DETACH             - Disconnect current provider\n"
+              << "  PROVIDER STATUS             - Show current provider status\n";
+}
+
+bool getProviderConfig(lunardb::providers::ProviderConfig& config) {
+    std::cout << "\nDatabase Connection Setup\n";
+    std::cout << "------------------------\n";
+    
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
+    std::cout << "Host [localhost]: ";
+    std::getline(std::cin, config.host);
+    if (config.host.empty()) config.host = "localhost";
+    
+    std::cout << "Port [5432]: ";
+    std::string portStr;
+    std::getline(std::cin, portStr);
+    config.port = portStr.empty() ? 5432 : std::stoi(portStr);
+    
+    std::cout << "Database name: ";
+    std::getline(std::cin, config.database);
+    if (config.database.empty()) {
+        std::cout << "Database name cannot be empty\n";
+        return false;
+    }
+    
+    std::cout << "Username: ";
+    std::getline(std::cin, config.username);
+    if (config.username.empty()) {
+        std::cout << "Username cannot be empty\n";
+        return false;
+    }
+    
+    std::cout << "Password: ";
+    config.password = "";
+    char ch;
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+        config.password += ch;
+        std::cout << '*';
+    }
+    std::cout << std::endl;
+    
+    return true;
+}
+
 void printHelp() {
     std::cout << "Available commands:\n"
               << "SET key value [ttl] - Set a key-value pair with optional TTL in seconds\n"
@@ -94,11 +142,12 @@ void printHelp() {
               << "MSET key1 value1 key2 value2 ... - Set multiple key-value pairs\n"
               << "MGET key1 key2 ... - Get multiple values\n"
               << "KEYS - List all keys\n"
-              << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL (Do not attempt to command this as it's broken\n"
+              << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL\n"
               << "CONNECT - Connects to a local LunarDB server in your machine (which is launched)\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "MODULE ADD module_name - Adds a module to your LunarDB modules if needed\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"
+              << "PROVIDER HELP - Lists commands for the Provider subcommands\n"
               << "HASH SHA256 key - Hashes a key using SHA-256\n"
               << "HASH MURMUR3 key - Hashes a key using the MURMUR3 encryption method\n"
               << "HASH ROTATE input shift - Rotates a hash base on the amount of shifts\n"
@@ -278,46 +327,68 @@ int main() {
             } else if (command == "PROVIDER") {
                 std::string subCommand;
                 iss >> subCommand;
-
-                if (subCommand == "LIST") {
+    
+                if (subCommand == "HELP") {
+                    printProviderHelp();
+                }
+                else if (subCommand == "LIST") {
                     auto providers = lunardb::providers::ProviderRegistry::instance().getAvailableProviders();
-                    std::cout << "Available providers:\n";
+                    std::cout << "\nAvailable database providers:\n";
+                    std::cout << "----------------------------\n";
                     for (const auto& provider : providers) {
                         std::cout << "- " << provider << "\n";
                     }
-                } else if (subCommand == "ATTACH") {
+                }
+                else if (subCommand == "ATTACH") {
                     std::string providerName;
                     if (iss >> providerName) {
                         auto provider = lunardb::providers::ProviderRegistry::instance().createProvider(providerName);
                         if (provider) {
                             lunardb::providers::ProviderConfig config;
-                            // Get connection details from user
-                            std::cout << "Enter host: ";
-                            std::getline(std::cin, config.host);
-                            std::cout << "Enter port: ";
-                            std::cin >> config.port;
-                            std::cin.ignore();
-                            std::cout << "Enter username: ";
-                            std::getline(std::cin, config.username);
-                            std::cout << "Enter password: ";
-                            std::getline(std::cin, config.password);
-                            std::cout << "Enter database: ";
-                            std::getline(std::cin, config.database);
-
-                            if (provider->connect(config) && cache.attachProvider(std::move(provider))) {
-                                std::cout << "Provider " << providerName << " attached successfully\n";
-                            } else {
-                                std::cout << "Failed to connect to provider " << providerName << "\n";
+                
+                            if (getProviderConfig(config)) {
+                                std::cout << "\nConnecting to database...\n";
+                    
+                                try {
+                                    if (provider->connect(config)) {
+                                        if (cache.attachProvider(std::move(provider))) {
+                                            std::cout << "✓ Successfully connected to " << providerName << " database\n";
+                                        } else {
+                                            std::cout << "✗ Failed to attach provider to cache\n";
+                                        }
+                                    } else {
+                                        std::cout << "✗ Failed to connect to database\n";
+                                    }
+                                } catch (const std::exception& e) {
+                                    std::cout << "✗ Error connecting to database: " << e.what() << "\n";
+                                }
                             }
                         } else {
-                            std::cout << "Failed to create provider " << providerName << "\n";
+                            std::cout << "✗ Unknown provider: " << providerName << "\n";
+                            std::cout << "Use 'PROVIDER LIST' to see available providers\n";
                         }
+                    } else {
+                        std::cout << "Usage: PROVIDER ATTACH <provider_name>\n";
+                        std::cout << "Example: PROVIDER ATTACH postgresql\n";
                     }
-                } else if (subCommand == "DETACH") {
-                    cache.detachProvider();
-                    std::cout << "Provider detached\n";
-                } else {
-                    std::cout << "Unknown PROVIDER subcommand. Available subcommands: LIST, ATTACH and DETACH. \n";
+                }
+                else if (subCommand == "DETACH") {
+                    if (cache.hasProvider()) {
+                        cache.detachProvider();
+                        std::cout << "✓ Provider detached successfully\n";
+                    } else {
+                        std::cout << "! No provider currently attached\n";
+                    }
+                }
+                else if (subCommand == "STATUS") {
+                    if (cache.hasProvider()) {
+                        std::cout << "Provider status: Connected\n";
+                    } else {
+                        std::cout << "Provider status: No provider attached\n";
+                    }
+                }
+                else {
+                    std::cout << "Unknown PROVIDER subcommand. Use 'PROVIDER HELP' for available commands.\n";
                 }
             } else if (command == "LUA") {
                 std::string script;
