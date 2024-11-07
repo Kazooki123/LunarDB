@@ -1,6 +1,17 @@
 FROM alpine:latest
 
-RUN apk add --no-cache g++ make lua5.4-dev
+RUN apk add --no-cache g++ make lua5.4-dev libpq-dev wget cmake
+
+WORKDIR /usr/src/
+
+# Install libpqxx from source
+RUN wget https://github.com/jtv/libpqxx/archive/7.6.0.tar.gz && \
+    tar -xf 7.6.0.tar.gz && \
+    cd libpqxx-7.6.0 && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make && make install && \
+    rm -rf /usr/src/libpqxx*
 
 WORKDIR /usr/src/lunardb
 
