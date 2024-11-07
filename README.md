@@ -104,6 +104,9 @@ Currently, We use **G++/GCC** for compiling C++ files and then output them as ex
 
 ### 🪟Compiling for Windows
 
+**⚠️ LUNARDB IS CURRENTLY ON SUPPORT FOR LINUX FOR NOW SO COMPILING MIGHT BROKE THE MAIN WINDOWS EXE FILE AS `main.cpp` CONTAINS
+LINUX-ONLY SYNTAXES FOR LINUX `g++` ⚠️**
+
 For Compiling the **LunarDB CLI** in **Windows**, you'll need to downlad [GCC](https://gcc.gnu.org/install/download.html)
 Once done and all setup, you can compile the C++ files with this command:
 
