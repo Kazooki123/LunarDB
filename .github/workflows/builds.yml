@@ -27,13 +27,13 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew update
-        brew install gcc lua@5.4
+        brew install gcc lua@5.4 libpqxx
 
     - name: Compile
       run: |
         mkdir -p bin
         cd src
-        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o ../bin/lunar
+        g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/local/include -llua5.4 -lpqxx -lpq -o ../bin/lunar
 
     - name: Create DMG (macOS)
       if: matrix.os == 'macos-latest'

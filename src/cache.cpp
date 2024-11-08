@@ -2,7 +2,7 @@
 ** Copyright 2024 Kazooki123
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-** documentation files (the “Software”), to deal in the Software without restriction, including without 
+** documentation files (the "Software"), to deal in the Software without restriction, including without 
 ** limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies     
 ** of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following 
 ** conditions:
@@ -10,15 +10,13 @@
 ** The above copyright notice and this permission notice shall be included in all copies or substantial 
 ** portions of the Software.
 ** 
-** THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
 ** LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 ** THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ** 
 **/
-
-
 
 #include "cache.h"
 #include <algorithm>
@@ -33,6 +31,9 @@ void Cache::set(const std::string &key, const std::string &value, int ttl_second
     entry.has_expiry = (ttl_seconds > 0);
     entry.expiry = std::chrono::steady_clock::now() + std::chrono::seconds(ttl_seconds);
     data[key] = std::move(entry);
+    
+    // Sync with provider if attached
+    syncWithProvider(key, data[key]);
 }
 
 std::string Cache::get(const std::string &key) const {
@@ -42,11 +43,25 @@ std::string Cache::get(const std::string &key) const {
             return it->second.is_list ? "" : it->second.string_value;
         }
     }
+    
+    // If not found in cache and provider exists, try to get from provider
+    if (provider_) {
+        auto value = provider_->get(key);
+        if (value.has_value()) {
+            // Update cache with provider value
+            const_cast<Cache*>(this)->set(key, *value);
+            return *value;
+        }
+    }
     return "";
 }
 
 bool Cache::del(const std::string &key) {
-    return data.erase(key) > 0;
+    bool deleted = data.erase(key) > 0;
+    if (deleted && provider_) {
+        provider_->del(key);
+    }
+    return deleted;
 }
 
 void Cache::clear() {
@@ -85,6 +100,9 @@ void Cache::cleanup_expired() {
     auto now = std::chrono::steady_clock::now();
     for (auto it = data.begin(); it != data.end();) {
         if (it->second.has_expiry && it->second.expiry <= now) {
+            if (provider_) {
+                provider_->del(it->first);
+            }
             it = data.erase(it);
         } else {
             ++it;
@@ -95,9 +113,12 @@ void Cache::cleanup_expired() {
 void Cache::evict_if_needed() {
     if (data.size() >= max_size) {
         auto oldest = std::min_element(data.begin(), data.end(),
-                                       [](const auto &a, const auto &b) {
-                                           return a.second.expiry < b.second.expiry;
-                                       });
+                                     [](const auto &a, const auto &b) {
+                                         return a.second.expiry < b.second.expiry;
+                                     });
+        if (provider_) {
+            provider_->del(oldest->first);
+        }
         data.erase(oldest);
     }
 }
@@ -113,6 +134,9 @@ void Cache::lpush(const std::string& key, const std::string& value) {
     } else {
         it->second.list_value.push_front(value);
     }
+    
+    // Sync with provider
+    syncWithProvider(key, data[key]);
 }
 
 std::string Cache::lpop(const std::string& key) {
@@ -123,7 +147,12 @@ std::string Cache::lpop(const std::string& key) {
             std::string value = list.front();
             list.pop_front();
             if (list.empty()) {
+                if (provider_) {
+                    provider_->del(key);
+                }
                 data.erase(it);
+            } else {
+                syncWithProvider(key, it->second);
             }
             return value;
         }
@@ -142,6 +171,9 @@ void Cache::rpush(const std::string& key, const std::string& value) {
     } else {
         it->second.list_value.push_back(value);
     }
+    
+    // Sync with provider
+    syncWithProvider(key, data[key]);
 }
 
 std::string Cache::rpop(const std::string& key) {
@@ -152,7 +184,12 @@ std::string Cache::rpop(const std::string& key) {
             std::string value = list.back();
             list.pop_back();
             if (list.empty()) {
+                if (provider_) {
+                    provider_->del(key);
+                }
                 data.erase(it);
+            } else {
+                syncWithProvider(key, it->second);
             }
             return value;
         }
