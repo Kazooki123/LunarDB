@@ -10,12 +10,12 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -23,24 +23,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential liblua5.4-dev libpqxx-dev libpq-dev
 
-    - name: Install dependencies (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew update
-        brew install gcc lua@5.4 libpqxx
-
     - name: Compile
       run: |
         mkdir -p bin
         cd src
         g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o ../bin/lunar
-
-    - name: Create DMG (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        mkdir -p LunarDB.app/Contents/MacOS
-        cp bin/lunar LunarDB.app/Contents/MacOS/
-        hdiutil create -volname "LunarDB" -srcfolder LunarDB.app -ov -format UDZO bin/lunar.dmg
 
     - name: Upload artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
@@ -48,10 +35,3 @@ jobs:
       with:
         name: lunar-linux
         path: bin/lunar
-
-    - name: Upload artifact (macOS)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4.4.2
-      with:
-        name: lunar-macos
-        path: bin/lunar.dmg
