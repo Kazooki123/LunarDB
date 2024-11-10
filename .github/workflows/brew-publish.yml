@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
+      - name: Checkout the repository
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -26,7 +26,7 @@ jobs:
 
       - name: Create a release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.0.9
         with:
           files: bin/lunar
 
@@ -40,5 +40,5 @@ jobs:
 
       - name: Publish Homebrew Tap
         run: |
-          brew tap yourusername/lunardb
+          brew tap kazooki123/lunardb
           brew install lunar
