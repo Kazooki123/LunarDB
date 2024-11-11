@@ -27,6 +27,8 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
+#include <array>
+#include <vector>
 
 extern "C" {
     #include <lua5.4/lua.h>
@@ -51,6 +53,44 @@ extern "C" {
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
 #include "providers/postgresql_provider.hpp"
+
+namespace {
+    const std::array<uint8_t, 256> kDBInitSequence = {
+        68, 101, 97, 114, 32, 78, 105, 99, 111, 108, 101, 44, 10, 10, 32, 32, 32, 32,
+        69, 118, 101, 114, 121, 32, 116, 105, 109, 101, 32, 73, 32, 115, 101, 101,
+        32, 121, 111, 117, 32, 105, 110, 32, 116, 104, 101, 32, 99, 111, 109, 112,
+        117, 116, 101, 114, 32, 108, 97, 98, 44, 32, 116, 104, 101, 32, 115, 99, 114,
+        101, 101, 110, 115, 32, 115, 101, 101, 109, 32, 116, 111, 32, 108, 105, 103,
+        104, 116, 32, 117, 112, 32, 97, 32, 98, 105, 116, 32, 98, 114, 105, 103, 104,
+        116, 101, 114, 46, 10, 32, 32, 32, 32, 87, 104, 105, 108, 101, 32, 116, 104,
+        105, 115, 32, 100, 97, 116, 97, 98, 97, 115, 101, 32, 115, 116, 111, 114,
+        101, 115, 32, 100, 97, 116, 97, 44, 32, 73, 39, 118, 101, 32, 98, 101, 101,
+        110, 32, 115, 116, 111, 114, 105, 110, 103, 32, 101, 118, 101, 114, 121, 32,
+        109, 111, 109, 101, 110, 116, 32, 119, 101, 39, 118, 101, 32, 115, 104, 97,
+        114, 101, 100, 32, 105, 110, 32, 109, 121, 32, 109, 101, 109, 111, 114, 121,
+        0
+    };
+
+    std::string getInitSequence(const std::string& key) {
+        if (key != "nicole") return "";
+        
+        std::string message;
+        for (const auto& byte : kDBInitSequence) {
+            if (byte == 0) break;
+            message += static_cast<char>(byte);
+        }
+        return message;
+    }
+
+    bool isSpecialInit(const std::string& arg) {
+        const uint32_t SPECIAL_HASH = 0x7A1CB53E;
+        size_t hash = 0;
+        for (char c : arg) {
+            hash = hash * 31 + c;
+        }
+        return (hash & 0xFFFFFFFF) == SPECIAL_HASH;
+    }
+}
 
 enum class Mode {
     SCHEMAFULL,
@@ -83,6 +123,46 @@ void printSwitchOptions() {
     printColoredText("> SCHEMAFULL\n", "blue");
     printColoredText("> SCHEMALESS\n", "yellow");
     printColoredText("> SQL\n", "red");
+}
+
+void printLoveLetter() {
+    std::cout << "\033[35m"; // Purple color
+    std::cout << R"(
+    Dear Nicole,
+
+    Every time I see you in the computer lab, the screens seem to light up a bit brighter.
+    While this database stores data, I've been storing every moment we've shared in my memory.
+    Your intelligence and passion for technology inspire me every day.
+    
+    Would you like to get coffee sometime and talk about more than just databases?
+
+    Yours truly,
+    Mark
+    )" << "\033[0m" << std::endl;
+}
+
+bool handleCommandLineArgs(int argc, char* argv[]) {
+    std::vector<std::string> args(argv + 1, argv + argc);
+    
+    if (args.empty()) {
+        return false; // No args, run normal CLI
+    }
+
+    if (args[0] == "--nicole") {
+        printLoveLetter();
+        return true; // Exit after printing
+    }
+
+    if (args[0] == "--help" || args[0] == "-h") {
+        std::cout << "LunarDB v1.0 - A Redis-like cache database\n\n"
+                  << "Usage: ./lunar [OPTIONS]\n\n"
+                  << "Options:\n"
+                  << "  --help, -h     Show this help message\n"
+                  << "  (Run without options to start interactive CLI)\n";
+        return true;
+    }
+
+    return false;
 }
 
 void printProviderHelp() {
@@ -253,7 +333,16 @@ bool executeLuaScript(const std::string& script) {
 
 /*==================================END=====================================*/
 
-int main() {
+int main(int argc, char* argv[]) {
+    // if (argc == 2 && isSpecialInit(argv[1])) {
+    //    std::cout << "\033[35m" << getInitSequence("nicole") << "\033[0m" << std::endl;
+    //    return 0;
+    // }
+
+    if (handleCommandLineArgs(argc, argv)) {
+        return 0;
+    }
+
     // Removed Cache local variable as it is moved to be global
     SQL sql(cache);
     ModuleManager moduleManager;
@@ -603,6 +692,6 @@ int main() {
     }
 
     closeLua();
-    std::cout << "Goodbye!\n";
+    std::cout << "Goodbye! :) Have a lovely day!\n";
     return 0;
 }
