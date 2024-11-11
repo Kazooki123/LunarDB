@@ -20,6 +20,7 @@
 ** 
 **/
 
+// To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o ../bin/lunar"
 
 #include <iostream>
 #include <string>
