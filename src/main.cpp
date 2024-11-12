@@ -28,8 +28,6 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
-#include <array>
-#include <vector>
 
 extern "C" {
     #include <lua5.4/lua.h>
@@ -55,42 +53,18 @@ extern "C" {
 #include "providers/registry.hpp"
 #include "providers/postgresql_provider.hpp"
 
-namespace {
-    const std::array<uint8_t, 256> kDBInitSequence = {
-        68, 101, 97, 114, 32, 78, 105, 99, 111, 108, 101, 44, 10, 10, 32, 32, 32, 32,
-        69, 118, 101, 114, 121, 32, 116, 105, 109, 101, 32, 73, 32, 115, 101, 101,
-        32, 121, 111, 117, 32, 105, 110, 32, 116, 104, 101, 32, 99, 111, 109, 112,
-        117, 116, 101, 114, 32, 108, 97, 98, 44, 32, 116, 104, 101, 32, 115, 99, 114,
-        101, 101, 110, 115, 32, 115, 101, 101, 109, 32, 116, 111, 32, 108, 105, 103,
-        104, 116, 32, 117, 112, 32, 97, 32, 98, 105, 116, 32, 98, 114, 105, 103, 104,
-        116, 101, 114, 46, 10, 32, 32, 32, 32, 87, 104, 105, 108, 101, 32, 116, 104,
-        105, 115, 32, 100, 97, 116, 97, 98, 97, 115, 101, 32, 115, 116, 111, 114,
-        101, 115, 32, 100, 97, 116, 97, 44, 32, 73, 39, 118, 101, 32, 98, 101, 101,
-        110, 32, 115, 116, 111, 114, 105, 110, 103, 32, 101, 118, 101, 114, 121, 32,
-        109, 111, 109, 101, 110, 116, 32, 119, 101, 39, 118, 101, 32, 115, 104, 97,
-        114, 101, 100, 32, 105, 110, 32, 109, 121, 32, 109, 101, 109, 111, 114, 121,
-        0
-    };
+std::string decodeSecretValue() {
+    std::string encoded = "44 65 61 72 20 4e 69 63 6f 6c 65 0a 0a 45 76 65 72 79 74 69 6d 65 20 " "49 20 73 65 65 2c 20 79 6f 75 27 72 65 20 42 65 61 75 74 79 20 73 68 " "69 6e 65 73 20 6d 79 20 6c 69 66 65 2e 0a 0a 57 68 69 6c 65 20 74 68 " "69 73 20 64 61 74 61 62 61 73 65 20 73 74 6f 72 65 73 20 64 61 74 61 " "2c 20 49 27 76 65 20 62 65 65 6e 20 73 74 6f 72 69 6e 67 20 65 76 65 " "72 79 20 6d 6f 6d 65 6e 74 20 77 65 27 76 65 20 73 68 61 72 65 64 20 " "69 6e 20 6d 79 20 6d 65 6d 6f 72 79 2e 0a 0a 53 75 72 65 20 79 6f 75 " "20 6d 69 67 68 74 20 74 68 69 6e 6b 20 74 68 69 73 20 69 73 20 73 75 " "72 70 72 69 73 69 6e 67 2c 20 62 75 74 20 49 20 6a 75 73 74 20 77 61 " "6e 74 20 74 6f 20 73 61 79 20 49 20 68 6f 70 65 20 74 68 69 73 20 6d " "65 73 73 61 67 65 20 67 65 74 73 20 73 65 6e 74 20 61 6e 64 20 62 65 " "65 6e 20 72 65 61 64 20 74 6f 20 74 68 65 20 72 69 67 68 74 20 70 65 " "72 73 6f 6e 2c 20 65 73 70 65 63 69 61 6c 6c 79 20 79 6f 75 2e 0a 0a " "59 6f 75 72 73 20 54 72 75 6c 79 0a 54 61 6b 65 20 61 20 67 75 65 73 " "73 20 3a 29";
 
-    std::string getInitSequence(const std::string& key) {
-        if (key != "nicole") return "";
-        
-        std::string message;
-        for (const auto& byte : kDBInitSequence) {
-            if (byte == 0) break;
-            message += static_cast<char>(byte);
+        std::string decoded;
+        std::istringstream hex_chars_stream(encoded);
+        while(hex_chars_stream.good()) {
+            std::string hex_char;
+            hex_chars_stream >> hex_char;
+            char decoded_char = std::stoi(hex_char, nullptr, 16);
+            decoded += decoded_char;
         }
-        return message;
-    }
-
-    bool isSpecialInit(const std::string& arg) {
-        const uint32_t SPECIAL_HASH = 0x7A1CB53E;
-        size_t hash = 0;
-        for (char c : arg) {
-            hash = hash * 31 + c;
-        }
-        return (hash & 0xFFFFFFFF) == SPECIAL_HASH;
-    }
+        return decoded;
 }
 
 enum class Mode {
@@ -126,44 +100,17 @@ void printSwitchOptions() {
     printColoredText("> SQL\n", "red");
 }
 
-void printLoveLetter() {
-    std::cout << "\033[35m"; // Purple color
-    std::cout << R"(
-    Dear Nicole,
-
-    Every time I see you in the computer lab, the screens seem to light up a bit brighter.
-    While this database stores data, I've been storing every moment we've shared in my memory.
-    Your intelligence and passion for technology inspire me every day.
+bool isSecretCommand(const std::string& input) {
+    const std::string secret = "--nicole";
+    std::hash<std::string> hasher;
     
-    Would you like to get coffee sometime and talk about more than just databases?
+    auto input_hash = hasher(input);
+    auto secret_hash = hasher(secret);
 
-    Yours truly,
-    Mark
-    )" << "\033[0m" << std::endl;
-}
+    std::cout << "Debug: Input hash = " << std::hex << input_hash << std::endl;
+    std:: cout << "Debug: Expected hash = " << std::hex << secret_hash << std::endl;
 
-bool handleCommandLineArgs(int argc, char* argv[]) {
-    std::vector<std::string> args(argv + 1, argv + argc);
-    
-    if (args.empty()) {
-        return false; // No args, run normal CLI
-    }
-
-    if (args[0] == "--nicole") {
-        printLoveLetter();
-        return true; // Exit after printing
-    }
-
-    if (args[0] == "--help" || args[0] == "-h") {
-        std::cout << "LunarDB v1.0 - A Redis-like cache database\n\n"
-                  << "Usage: ./lunar [OPTIONS]\n\n"
-                  << "Options:\n"
-                  << "  --help, -h     Show this help message\n"
-                  << "  (Run without options to start interactive CLI)\n";
-        return true;
-    }
-
-    return false;
+    return input_hash == secret_hash;
 }
 
 void printProviderHelp() {
@@ -335,12 +282,11 @@ bool executeLuaScript(const std::string& script) {
 /*==================================END=====================================*/
 
 int main(int argc, char* argv[]) {
-    // if (argc == 2 && isSpecialInit(argv[1])) {
-    //    std::cout << "\033[35m" << getInitSequence("nicole") << "\033[0m" << std::endl;
-    //    return 0;
-    // }
-
-    if (handleCommandLineArgs(argc, argv)) {
+    if (argc > 1) {
+        std::cout << "Debug: Argument received:" << argv[1] << std::endl;
+    }
+    if (argc > 1 && isSecretCommand(argv[1])) {
+        std::cout << decodeSecretValue() << std::endl;
         return 0;
     }
 
