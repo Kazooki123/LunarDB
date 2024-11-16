@@ -1,11 +1,13 @@
 #include "concurrency.h"
 #include "cache.h"
+#include "saved.h"
 #include <algorithm>
 #include <chrono>
 
 namespace lunardb {
 
-TaskQueue::TaskQueue(size_t num_threads) : stop(false), active_threads(0) {
+TaskQueue::TaskQueue(size_t num_threads)
+    : stop(false), active_threads(0) {
     for (size_t i = 0; i < num_threads; ++i) {
         workers.emplace_back(&TaskQueue::workerThread, this);
     }
@@ -32,9 +34,17 @@ void TaskQueue::workerThread() {
             tasks.pop();
         }
 
-        active_threads++;
-        task();
-        active_threads--;
+        {
+            std::lock_guard<std::mutex> lock(active_threads);
+            active_threads++;
+        }
+
+        task(); // Execute the task
+
+        {
+            std::lock_guard<std::mutex> lock(active_threads);
+            active_threads--;
+        }
     }
 }
 
@@ -79,10 +89,11 @@ void TaskQueue::stopBackgroundTasks() {
 
 size_t TaskQueue::getQueueSize() const {
     std::unique_lock<std::mutex> lock(queue_mutex);
-    return tasks.size();
+    return tasks.size(); // Corrected from `queue.size()`
 }
 
 size_t TaskQueue::getActiveThreadCount() const {
+    std::lock_guard<std::mutex> lock(active_threads);
     return active_threads;
 }
 
@@ -105,7 +116,6 @@ void BackgroundProcessor::scheduleTask(std::function<void()> task,
 void BackgroundProcessor::scheduleCleanup() {
     scheduleTask(
         []() {
-            // Get the global cache instance
             extern Cache cache;
             cache.cleanup_expired();
         },
