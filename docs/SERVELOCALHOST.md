@@ -8,7 +8,7 @@ can launch in your machine.
 **The command for the LunarDB server host is:**
 
 ```bash
-lunardb serve
+lunardb-server --host 127.0.0.1 --port 6379 --config '../src/servers/lunardb.json'
 ```
 
 And it **should** show you a text in your _terminal_ like this:

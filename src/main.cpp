@@ -4,20 +4,20 @@
 ** Copyright 2024 Kazooki123
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-** documentation files (the “Software”), to deal in the Software without restriction, including without 
-** limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies     
-** of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following 
+** documentation files (the “Software”), to deal in the Software without restriction, including without
+** limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+** of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
 ** conditions:
 **
-** The above copyright notice and this permission notice shall be included in all copies or substantial 
+** The above copyright notice and this permission notice shall be included in all copies or substantial
 ** portions of the Software.
-** 
-** THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+**
+** THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
 ** LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 ** THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-** 
+**
 **/
 
 // To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o ../bin/lunar"
@@ -48,10 +48,17 @@ extern "C" {
 #include "sharding.h"
 #include "hashing.h"
 #include "connect.h"
+#include "concurrency.h"
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
 #include "providers/postgresql_provider.hpp"
+
+// Global Variables on top
+Cache cache(1000);
+LunarDB::Connection connection;
+lunardb::TaskQueue taskQueue;
+lunardb::BackgroundProcessor bgProcessor;
 
 std::string decodeSecretValue() {
     std::string encoded = "44 65 61 72 20 4e 69 63 6f 6c 65 0a 0a 45 76 65 72 79 74 69 6d 65 20 " "49 20 73 65 65 2c 20 79 6f 75 72 20 42 65 61 75 74 79 20 73 68 " "69 6e 65 73 20 6d 79 20 6c 69 66 65 2e 0a 0a 57 68 69 6c 65 20 74 68 " "69 73 20 64 61 74 61 62 61 73 65 20 73 74 6f 72 65 73 20 64 61 74 61 " "2c 20 49 27 76 65 20 62 65 65 6e 20 73 74 6f 72 69 6e 67 20 65 76 65 " "72 79 20 6d 6f 6d 65 6e 74 20 77 65 27 76 65 20 73 68 61 72 65 64 20 " "69 6e 20 6d 79 20 6d 65 6d 6f 72 79 2e 0a 0a 53 75 72 65 20 79 6f 75 " "20 6d 69 67 68 74 20 74 68 69 6e 6b 20 74 68 69 73 20 69 73 20 73 75 " "72 70 72 69 73 69 6e 67 2c 20 62 75 74 20 49 20 6a 75 73 74 20 77 61 " "6e 74 20 74 6f 20 73 61 79 20 49 20 68 6f 70 65 20 74 68 69 73 20 6d " "65 73 73 61 67 65 20 67 65 74 73 20 73 65 6e 74 20 61 6e 64 20 62 65 " "65 6e 20 72 65 61 64 20 74 6f 20 74 68 65 20 72 69 67 68 74 20 70 65 " "72 73 6f 6e 2c 20 65 73 70 65 63 69 61 6c 6c 79 20 79 6f 75 2e 0a 0a " "59 6f 75 72 73 20 54 72 75 6c 79 0a 54 61 6b 65 20 61 20 67 75 65 73 " "73 20 3a 29";
@@ -103,7 +110,7 @@ void printSwitchOptions() {
 bool isSecretCommand(const std::string& input) {
     const std::string secret = "--nicole";
     std::hash<std::string> hasher;
-    
+
     auto input_hash = hasher(input);
     auto secret_hash = hasher(secret);
 
@@ -124,32 +131,32 @@ void printProviderHelp() {
 bool getProviderConfig(lunardb::providers::ProviderConfig& config) {
     std::cout << "\nDatabase Connection Setup\n";
     std::cout << "------------------------\n";
-    
+
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    
+
     std::cout << "Host [localhost]: ";
     std::getline(std::cin, config.host);
     if (config.host.empty()) config.host = "localhost";
-    
+
     std::cout << "Port [5432]: ";
     std::string portStr;
     std::getline(std::cin, portStr);
     config.port = portStr.empty() ? 5432 : std::stoi(portStr);
-    
+
     std::cout << "Database name: ";
     std::getline(std::cin, config.database);
     if (config.database.empty()) {
         std::cout << "Database name cannot be empty\n";
         return false;
     }
-    
+
     std::cout << "Username: ";
     std::getline(std::cin, config.username);
     if (config.username.empty()) {
         std::cout << "Username cannot be empty\n";
         return false;
     }
-    
+
     std::cout << "Password: ";
     config.password = "";
     char ch;
@@ -158,7 +165,7 @@ bool getProviderConfig(lunardb::providers::ProviderConfig& config) {
         std::cout << '*';
     }
     std::cout << std::endl;
-    
+
     return true;
 }
 
@@ -181,6 +188,7 @@ void printHelp() {
               << "HASH ROTATE input shift - Rotates a hash base on the amount of shifts\n"
               << "SIZE - Get the number of key-value pairs\n"
               << "CLEANUP - Remove expired entries\n"
+              << "THREADS - Shows Active threads and Queued tasks\n"
               << "SAVE filename - Save the cache to a file\n"
               << "LOAD filename - Load the cache from a file\n"
               << "LUA dofile <file_to_your_lua_script> \n"
@@ -216,7 +224,6 @@ void printLunarLogo() {
 
 /*==========================================================================*/
 
-Cache cache(1000);
 lua_State* L = nullptr;
 
 // Wrapper function to handle C++ exceptions
@@ -255,10 +262,10 @@ int lua_get(lua_State* L) {
 void initializeLua() {
     L = luaL_newstate();
     luaL_openlibs(L);
-    
+
     lua_pushcfunction(L, lua_set);
     lua_setglobal(L, "lunardb_set");
-    
+
     lua_pushcfunction(L, lua_get);
     lua_setglobal(L, "lunardb_get");
 }
@@ -281,13 +288,45 @@ bool executeLuaScript(const std::string& script) {
 
 /*==================================END=====================================*/
 
+bool checkHealth() {
+    try {
+        // Checks if cache is operational
+        cache.set("health_check", "test");
+        std::string result = cache.get("health_check");
+        if (result != "test") {
+            return false;
+        }
+        cache.del("health_check");
+
+        if (!L || luaL_dostring(L, "return true") != LUA_OK) {
+            return false;
+        }
+
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc > 1) {
         std::cout << "Debug: Argument received:" << argv[1] << std::endl;
-    }
-    if (argc > 1 && isSecretCommand(argv[1])) {
-        std::cout << decodeSecretValue() << std::endl;
-        return 0;
+
+        if (strcmp(argv[1], "--health") == 0) {
+            bool isHealthy = checkHealth();
+            if (isHealthy) {
+                std::cout << "healthy" << std::endl;
+                return 0;
+            } else {
+                std::cout << "unhealthy" << std::endl;
+                return 1;
+            }
+        }
+
+        if (isSecretCommand(argv[1])) {
+            std::cout << decodeSecretValue() << std::endl;
+            return 0;
+        }
     }
 
     // Removed Cache local variable as it is moved to be global
@@ -300,6 +339,13 @@ int main(int argc, char* argv[]) {
     printLunarLogo();
     std::cout << "Welcome to LunarDB! A Redis-like cache database!\n";
     printHelp();
+
+    taskQueue.startBackgroundTasks();
+    bgProcessor.start();
+
+    // Schedules background tasks
+    bgProcessor.scheduleCleanup();  // Auto cleanup every 5 minutes
+    bgProcessor.schedulePersistence("autosave.db");  // Auto save every 15 minutes
 
     initializeLua();
 
@@ -363,7 +409,7 @@ int main(int argc, char* argv[]) {
             } else if (command == "PROVIDER") {
                 std::string subCommand;
                 iss >> subCommand;
-    
+
                 if (subCommand == "HELP") {
                     printProviderHelp();
                 }
@@ -381,10 +427,10 @@ int main(int argc, char* argv[]) {
                         auto provider = lunardb::providers::ProviderRegistry::instance().createProvider(providerName);
                         if (provider) {
                             lunardb::providers::ProviderConfig config;
-                
+
                             if (getProviderConfig(config)) {
                                 std::cout << "\nConnecting to database...\n";
-                    
+
                                 try {
                                     if (provider->connect(config)) {
                                         if (cache.attachProvider(std::move(provider))) {
@@ -435,7 +481,7 @@ int main(int argc, char* argv[]) {
             } else if (command == "MODULE") {
                 std::string subCommand;
                 iss >> subCommand;
-            
+
                 if (subCommand == "ADD") {
                     std::string moduleName;
                     if (iss >> moduleName) {
@@ -467,10 +513,13 @@ int main(int argc, char* argv[]) {
                         }
                     } else {
                         std::cout << "Invalid MODULE REMOVE command. Usage: MODULE REMOVE <module_name>\n";
-                    } 
+                    }
                 } else {
                     std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST, REMOVE\n";
                 }
+            } else if (command == "THREADS") {
+                std::cout << "Active threads: " << taskQueue.getActiveThreadCount() << "\n";
+                std::cout << "Queued tasks: " << taskQueue.getQueueSize() << "\n";
             } else if (command == "HASH" ) {
                 std::string subCommand, input;
                 int shift = 0;
@@ -626,9 +675,36 @@ int main(int argc, char* argv[]) {
                     std::cout << "Invalid LLEN command\n";
                 }
             } else if (command == "CONNECT") {
-                std::string IPandPort;
-                if (iss >> IPandPort) {
-                    
+                std::string host = "127.0.0.1";
+                int port = 6379;
+                std::string arg;
+                while (iss >> arg) {
+                    if (arg == "--host" || arg == "-h") {
+                        if (!(iss >> host)) {
+                            std::cout << "Invalid CONNECT command: Missing host value\n";
+                            return 1;
+                        }
+                    } else if (arg == "--port" || arg == "-p") {
+                        if (!(iss >> port)) {
+                            std::cout << "Invalid CONNECT command: Missing port value\n";
+                            return 1;
+                        }
+                        if (port <= 0 || port > 65535) {
+                            std::cout << "Invalid CONNECT command: Port must be between 1-65535\n";
+                            return 1;
+                        }
+                    } else {
+                        std::cout << "Invalid CONNECT argument: " << arg << "\n";
+                        return 1;
+                    }
+                }
+
+                try {
+                    connection.connect(host, port);
+                    std::cout << "Connected to " << host << ":" << port << "\n";
+                } catch (const std::exception& e) {
+                    std::cout << "Failed to connect to " << host << ":" << port << "\n";
+                    return 1;
                 }
             } else if (command == "QUIT") {
                 break;
@@ -637,6 +713,9 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    bgProcessor.stop();
+    taskQueue.stopBackgroundTasks();
 
     closeLua();
     std::cout << "Goodbye! :) Have a lovely day!\n";

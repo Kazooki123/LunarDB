@@ -19,6 +19,7 @@ C++:
 ## Reporting a Vulnerability
 
 ### Steps on how to `Report a Vulnerability`
+
 1. Create a Issue
 2. Explain how the bug works
 3. Provided steps on how to execute the bug
