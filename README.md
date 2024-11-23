@@ -10,6 +10,34 @@
 
 Lunar is a Key-Value, Cache, Memory based database that loads keys and values in a file when saved by command, you can load this keys and values by the command "LOAD" then filename.
 
+## Install
+
+A Guide to **Installing LunarDB**!
+
+### 💽Git pull (Recommended)
+
+If you want the full source code of **LunarDB** and **compile** it for yourself then you can run:
+
+```bash
+git pull https://github.com/Kazooki123/lunardb.git
+```
+
+### 🪟Windows
+
+While **outdated**, you can go to the `installer/` directory and get yourself a **LunarDB CLI executable** file!
+
+### 🐧Linux
+
+`Coming soon...`
+
+### 🍎Apple
+
+You can use and install **Homebrew** and run this:
+
+```bash
+brew install lunar
+```
+
 ## 📖Documentation
 
 **💫LunarDB** has a documentation website with a guide for users who are new and learning to use LunarDB!
@@ -129,7 +157,7 @@ sudo apt install build-essential
 After that, head to "src/" and run this to compile for **Linux** support:
 
 ```bash
-g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o ../bin/lunar
+g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -o ../bin/lunar
 ```
 
 ## 🤝CONTRIBUTIONS

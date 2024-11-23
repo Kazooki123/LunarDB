@@ -11,8 +11,6 @@
 #include <future>
 #include <memory>
 
-namespace lunardb {
-
 class TaskQueue {
 public:
     using Task = std::function<void()>;
@@ -36,10 +34,11 @@ public:
 private:
     std::vector<std::thread> workers;
     std::queue<Task> tasks;
-    std::mutex queue_mutex;
+    mutable std::mutex queue_mutex;
+    mutable std::mutex active_threads_mutex;
     std::condition_variable condition;
-    std::atomic<bool> stop;
-    std::atomic<size_t> active_threads;
+    bool stop;
+    size_t active_threads;
 
     void workerThread();
 };
@@ -74,7 +73,5 @@ private:
 
     void processingLoop();
 };
-
-}
 
 #endif // CONCURRENCY_H

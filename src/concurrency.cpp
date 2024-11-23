@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <chrono>
 
-namespace lunardb {
-
 TaskQueue::TaskQueue(size_t num_threads)
     : stop(false), active_threads(0) {
     for (size_t i = 0; i < num_threads; ++i) {
@@ -35,14 +33,14 @@ void TaskQueue::workerThread() {
         }
 
         {
-            std::lock_guard<std::mutex> lock(active_threads);
+            std::lock_guard<std::mutex> lock(active_threads_mutex);
             active_threads++;
         }
 
         task(); // Execute the task
 
         {
-            std::lock_guard<std::mutex> lock(active_threads);
+            std::lock_guard<std::mutex> lock(active_threads_mutex);
             active_threads--;
         }
     }
@@ -89,11 +87,11 @@ void TaskQueue::stopBackgroundTasks() {
 
 size_t TaskQueue::getQueueSize() const {
     std::unique_lock<std::mutex> lock(queue_mutex);
-    return tasks.size(); // Corrected from `queue.size()`
+    return tasks.size();
 }
 
 size_t TaskQueue::getActiveThreadCount() const {
-    std::lock_guard<std::mutex> lock(active_threads);
+    std::lock_guard<std::mutex> lock(active_threads_mutex);
     return active_threads;
 }
 
@@ -115,12 +113,12 @@ void BackgroundProcessor::scheduleTask(std::function<void()> task,
 
 void BackgroundProcessor::scheduleCleanup() {
     scheduleTask(
-        []() {
+        []()
+        {
             extern Cache cache;
             cache.cleanup_expired();
         },
-        std::chrono::minutes(5)
-    );
+        std::chrono::minutes(5));
 }
 
 void BackgroundProcessor::schedulePersistence(const std::string& filename) {
@@ -163,6 +161,4 @@ void BackgroundProcessor::processingLoop() {
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-}
-
 }

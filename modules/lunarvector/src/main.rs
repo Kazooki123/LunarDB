@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io::Write;
 
 mod vector;
 mod commands;
@@ -13,6 +14,9 @@ fn main() {
     println!("Type 'HELP' for available commands.");
 
     loop {
+        print!("$ ");
+        std::io::stdout().flush().unwrap();
+
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
         let input = input.trim();

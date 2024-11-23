@@ -1,28 +1,29 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall
--Wextra -02
+CXXFLAGS = -std=c++17
+LDFLAGS = -l/usr/include/lua5.4 -llua5.4
 
-SRC_DIR = src
-BUILD_DIR = build
-INCLUDE_DIR = include
+SRCDIR = src
+BUILDDIR = bin
+TARGET = $(BUILDDIR)/lunar
 
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
-
-TARGET = lunar
+SRCFILES = $(wildcard $(SRCDIR)/*.cpp)
+OBJFILES = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCFILES))
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -I$
-(INCLUDE_DIR) -o $@ $^
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -I$
-$(INCLUDE_DIR) -c $< -o $@
+# Builds the target for ther CLI
+$(TARGET): $(BUILDDIR) $(OBJFILES) $(CXX) $(CXXFLAGS) $(OBJFILES) $(LDFLAGS) -o $(TARGET)
+
+# Compiling source files into object files
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(CXX) $(CXXFLAGS) -c $ < -o $@
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
-	
-.PHONY: all clean
+	rm -rf $(BUILDDIR)
+
+run: $(TARGET)
+	./$(TARGET)
+
+.PHONY: all clean run

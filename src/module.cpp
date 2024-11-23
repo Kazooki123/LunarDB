@@ -3,8 +3,20 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdlib>
+#include <curl/curl.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <cstdio>
 
 namespace fs = std::filesystem;
+
+// Callback function for cURL to write data
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+    size_t totalSize = size * nmemb;
+    output->append((char*)contents, totalSize);
+    return totalSize;
+}
 
 ModuleManager::ModuleManager() : modulePath("../modules/") {
     loadExistingModules();
@@ -22,6 +34,7 @@ bool ModuleManager::removeModule(const std::string& moduleName) {
     auto it = std::find(loadedModules.begin(), loadedModules.end(), moduleName);
     if (it != loadedModules.end()) {
         loadedModules.erase(it);
+        fs::remove_all(modulePath + moduleName);
         return true;
     }
     return false;
@@ -31,10 +44,58 @@ std::vector<std::string> ModuleManager::listModules() const {
     return loadedModules;
 }
 
+// What this does is it installs the modules from the LunarDB github repository then once it
+// is installed, it then builds it using Cargo since LunarDB modules are built in Rust
+// and then it embeds to the CLI to make it work (kind of)
 bool ModuleManager::installModule(const std::string& moduleName, const std::string& repoUrl) {
-    // This function would implement the module installation logic
-    // For now, we'll just add the module name to the list
-    return addModule(moduleName);
+    std::string moduleUrl = repoUrl + "/" + moduleName + ".tar.gz";
+    std::string outputPath = modulePath + moduleName + ".tar.gz";
+
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        FILE* fp = fopen(outputPath.c_str(), "wb");
+        if (!fp) {
+            std::cerr << "Failed to open file for writing: " << outputPath << std::endl;
+            return false;
+        }
+
+        curl_easy_setopt(curl, CURLOPT_URL, moduleUrl.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fwrite);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+        CURLcode res = curl_easy_perform(curl);
+        fclose(fp);
+        curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK) {
+            std::cerr << "Failed to download module: " << curl_easy_strerror(res) << std::endl;
+            return false;
+        }
+
+        // Extract the tar.gz file
+        std::string extractCmd = "tar -xzf " + outputPath + " -C " + modulePath;
+        int extractResult = system(extractCmd.c_str());
+        if (extractResult != 0) {
+            std::cerr << "Failed to extract module" << std::endl;
+            return false;
+        }
+
+        // Remove the tar.gz file
+        fs::remove(outputPath);
+
+        // Build the Rust module
+        std::string buildCmd = "cd " + modulePath + moduleName + " && cargo build --release";
+        int buildResult = system(buildCmd.c_str());
+        if (buildResult != 0) {
+            std::cerr << "Failed to build module" << std::endl;
+            return false;
+        }
+
+        // Adds the module to the list
+        return addModule(moduleName);
+    }
+
+    return false;
 }
 
 bool ModuleManager::moduleExists(const std::string& moduleName) const {

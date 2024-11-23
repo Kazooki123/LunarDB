@@ -1,19 +1,15 @@
-# LunarDB server
-lunardb_server.exe
-
 # test
 test/
 
 # environment files
 *.env
+*.env.local
 
 # .vscode
 .vscode/
 
-# src
-src/hello
-src/lunar2.exe
-src/main2.cpp
+# hashed cache files (from LunarDB)
+*.cache
 
 # fleet
 .fleet/
@@ -62,3 +58,6 @@ middleware-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# .elixir_ls
+.elixir_ls/

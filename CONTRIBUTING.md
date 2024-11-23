@@ -83,13 +83,7 @@ Navigate to "src/" and then
 Run this:
 
 ```bash
-g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -o ../bin/lunar
-```
-
-Compiling for MacOS:
-
-```bash
-MacOS has a variety of methods for compiling LunarDB as a CLI file.
+g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -o ../bin/lunar
 ```
 
 ## Contribution Guidelines
