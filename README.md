@@ -3,12 +3,12 @@
 
   <h1>🌑LunarDB: A cache key-value database</h1>
 
-  <h3><b>⚡A Cache database⚡</b></h3>
+  <h3><b>⚡A Blazingly Fast Cache database⚡</b></h3>
 </div>
 
 ## 🔗What is it?
 
-Lunar is a Key-Value, Cache, Memory based database that loads keys and values in a file when saved by command, you can load this keys and values by the command "LOAD" then filename.
+LunarDB is a **multi-model, key-value store, cache, memory based database** that loads keys and values in a file when saved by command, you can load this keys and values by the command "LOAD" then filename.
 
 ## Install
 
@@ -46,7 +46,7 @@ brew install lunar
 
 ## 🔗Commands
 
-**🧭Available commands:**
+**🧭Basic commands:**
 
 SET key value [ttl] - Set a key-value pair with optional TTL in seconds.
 
@@ -89,6 +89,10 @@ LRANGE key start stop - Get a range of elements from the list
 LLEN key - Get the length of the list
 
 QUIT - Exit the program
+
+### Additional Notes
+
+For more commands you can run the **CLI** executable or read our **Documentation Page**.
 
 ## Docker
 
