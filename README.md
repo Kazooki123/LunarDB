@@ -157,7 +157,7 @@ sudo apt install build-essential
 After that, head to "src/" and run this to compile for **Linux** support:
 
 ```bash
-g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -o ../bin/lunar
+g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -o ../bin/lunar
 ```
 
 ## 🤝CONTRIBUTIONS

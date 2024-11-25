@@ -28,6 +28,7 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
+#include <fstream>
 
 extern "C" {
     #include <lua5.4/lua.h>
@@ -49,6 +50,7 @@ extern "C" {
 #include "hashing.h"
 #include "connect.h"
 #include "concurrency.h"
+#include "parser.h"
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
@@ -179,6 +181,7 @@ void printHelp() {
               << "KEYS - List all keys\n"
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL\n"
               << "CONNECT - Connects to a local LunarDB server in your machine (which is launched)\n"
+              << "LUNARC - Runs a '.lrql' query file, a file extension for LunarDB Extended Multi-model feature\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "MODULE ADD module_name - Adds a module to your LunarDB modules if needed\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"
@@ -541,6 +544,37 @@ int main(int argc, char* argv[]) {
                     }
                 } else {
                     std::cout << "Invalid HASH command. Usage: HASH <subcommand> <input> [shift]\n";
+                }
+            } else if (command == "LUNARC") {
+                std::string filename;
+                if (iss >> filename) {
+                    if (filename.substr(filename.find_last_of(".") + 1) == "lrql") {
+                        std::ifstream file(filename);
+                        if (file) {
+                            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+                            // Check if file contains TABLE keyword
+                            if (content.find("TABLE") != std::string::npos) {
+                                try {
+                                    Tokenizer tokenizer(content);
+                                    auto tokens = tokenizer.tokenize();
+                                    Parser parser(tokens);
+                                    parser.parse();
+                                    std::cout << "Success: LRQL file executed successfully\n";
+                                } catch (const std::exception& e) {
+                                    std::cout << "Error: Failed to execute LRQL file - " << e.what() << "\n";
+                                }
+                            } else {
+                                std::cout << "Error: No TABLE definition found in the LRQL file\n";
+                            }
+                        } else {
+                            std::cout << "Error: Failed to open file: " << filename << "\n";
+                        }
+                    } else {
+                        std::cout << "Error: Invalid file type. Only .lrql files are supported.\n";
+                    }
+                } else {
+                    std::cout << "Usage: LUNARC file.lrql\n";
                 }
             } else if (command == "DEL") {
                 std::string key;

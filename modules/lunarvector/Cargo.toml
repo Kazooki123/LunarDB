@@ -5,4 +5,13 @@ author = ["Kazooki123"]
 license = "MIT"
 edition = "2021"
 
+[lib]
+name = "lunarvector"
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
+libc = "0.2"
+lazy_static = "1.5.0"
+
+[build-dependencies]
+cbindgen = "0.24"

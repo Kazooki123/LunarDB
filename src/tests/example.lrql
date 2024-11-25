@@ -1,0 +1,30 @@
+# LunarQL file
+# Used for Query with extended features of LunarDB
+
+SELECT id, name, profile->>'email' FROM users WHERE profile->>'age' > 25;
+
+# Example for document insertion for .lrql
+INSERT INTO users {
+  "id": "123",
+  "name": "Alice",
+  "profile": {
+    "age": 30,
+    "email": "alice@example.com"
+  }
+};
+
+# Basic graph query
+MATCH (u:User)-[:FRIEND]->(f:User)
+WHERE u.name = "Alice"
+RETURN u, f;
+
+# Basic example of pointers
+SELECT ->address.city FROM users WHERE id = "123";
+
+# Hybrid Query (mixed models together)
+
+SELECT u.name, u->friends, u.profile->>'email' FROM users u WHERE u.profile->>'age' > 20;
+
+# Basic Time-series Query
+
+SELECT temperature FROM weather_data WHERE timestamp > now() - INTERNAL 1 HOUR;

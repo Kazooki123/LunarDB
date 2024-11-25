@@ -44,7 +44,7 @@ std::string SQL::executeQuery(const std::string& query) {
 std::vector<std::string> SQL::parseQuery(const std::string& query) {
     std::vector<std::string> tokens;
     std::regex pattern(R"(([*,()=<>!]+)|([^\s,()=<>!]+))");
-    
+
     auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
     auto words_end = std::sregex_iterator();
 
@@ -60,7 +60,7 @@ std::string SQL::handleCreate(const std::vector<std::string>& tokens) {
     }
 
     std::string tableName = tokens[2];
-    
+
     // Extract column definitions
     std::vector<std::string> columns;
     size_t i = 3;
@@ -81,13 +81,13 @@ std::string SQL::handleCreate(const std::vector<std::string>& tokens) {
     // Store table definition in cache
     Table table;
     table.columns = columns;
-    
+
     // Serialize table structure to string (simple implementation)
     std::string tableData = "COLS:";
     for (const auto& col : columns) {
         tableData += col + ",";
     }
-    
+
     cache.set("TABLE_" + tableName, tableData);
     return "Table created successfully";
 }
@@ -102,7 +102,7 @@ std::string SQL::handleSelect(const std::vector<std::string>& tokens) {
     std::string whereColumn;
     std::string whereOperator;
     std::string whereValue;
-    
+
     // Parse SELECT part
     size_t i = 1;
     if (tokens[i] == "*") {
@@ -164,7 +164,7 @@ std::string SQL::handleInsert(const std::vector<std::string>& tokens) {
     }
 
     std::string tableName = tokens[1];
-    
+
     // Check if table exists
     std::string tableData = cache.get("TABLE_" + tableName);
     if (tableData.empty()) {
@@ -203,7 +203,7 @@ std::string SQL::handleUpdate(const std::vector<std::string>& tokens) {
     std::string tableName = tokens[1];
     std::string setColumn = tokens[3];
     std::string setValue = tokens[5];
-    
+
     std::string whereColumn;
     std::string whereOperator;
     std::string whereValue;

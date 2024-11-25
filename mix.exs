@@ -22,12 +22,12 @@ defmodule LunarDB.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.5"},
-      {:httpoison, "~> 1.8"},
+      {:plug_cowboy, "~> 2.7.2"},
+      {:httpoison, "~> 2.2.1"},
       #{:ecto, "~> 3.12.4"},
       #{:phoenix, "~> 1.7"},
       #{:libcluster, "~> 3.4"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4.4"}
     ]
   end
 end

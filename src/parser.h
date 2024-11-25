@@ -1,37 +1,53 @@
-#ifndef MODULE_H
-#define MODULE_H
+#ifndef PARSER_H
+#define PARSER_H
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
-class ModuleManager {
+class Tokenizer {
 public:
-    ModuleManager();
-    bool addModule(const std::string& moduleName);
-    bool removeModule(const std::string& moduleName);
-    std::vector<std::string> listModules() const;
-    bool installModule(const std::string& moduleName, const std::string& repoUrl);
+    enum class TokenType {
+        SELECT, INSERT, UPDATE, MATCH, WHERE, RETURN, FROM, INTO, IDENTIFIER, STRING, NUMBER, SYMBOL, END
+    };
+
+    struct Token {
+        TokenType type;
+        std::string value;
+    };
+
+    explicit Tokenizer(const std::string& source);
+    std::vector<Token> tokenize();
 
 private:
-    std::string modulePath;
-    std::vector<std::string> loadedModules;
+    std::string source;
+    size_t position;
+    char currentChar();
 
-    bool moduleExists(const std::string& moduleName) const;
-    void loadExistingModules();
+    void advance();
+    void skipWhitespace();
+    void skipComment();
+    Token identifier();
+    Token number();
+    Token string();
+    Token symbol();
 };
 
-// C interface for FFI
-extern "C" {
-    ModuleManager* create_module_manager();
-    void destroy_module_manager(ModuleManager* manager);
-    bool add_module(ModuleManager* manager, const char* moduleName);
-    bool remove_module(ModuleManager* manager, const char* moduleName);
-    const char** list_modules(ModuleManager* manager, int* count);
-    void free_module_list(const char** moduleList, int count);
-    bool install_module(ModuleManager* manager, const char* moduleName, const char* repoUrl);
-}
+class Parser {
+public:
+    explicit Parser(const std::vector<Tokenizer::Token>& tokens);
+    void parse();
 
-// Authors: Kazooki123, Starloexoliz
+private:
+    std::vector<Tokenizer::Token> tokens;
+    size_t currentPosition;
+
+    void parseStatement();
+    void parseSelect();
+    void parseInsert();
+    void parseMatch();
+    void parseUpdate();
+};
 
 /*
 ** Copyright 2024 Kazooki123
@@ -53,4 +69,4 @@ extern "C" {
 **
 **/
 
-#endif // MODULE_H
+#endif // PARSER_H

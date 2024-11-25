@@ -14,7 +14,7 @@ public:
 private:
     Cache& cache;
     std::vector<std::string> parseQuery(const std::string& query);
-    
+
     // Query handlers
     std::string handleSelect(const std::vector<std::string>& tokens);
     std::string handleInsert(const std::vector<std::string>& tokens);
