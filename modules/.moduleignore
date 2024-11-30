@@ -1,0 +1,6 @@
+# .moduleignore ignores any directory that isn't a registered LunarDB module
+# files below are just extra files that is used for LunarDB (except backup as it is a handler example)
+
+backup/
+
+include/

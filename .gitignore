@@ -1,5 +1,6 @@
-# test
-test/
+# dump, where files & directories are temporarily not used unless they have
+# use cases in the future
+dump/
 
 # environment files
 *.env

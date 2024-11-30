@@ -80,4 +80,51 @@ Gets multiple values.
 MGET hello hows
 ```
 
+## HASHING
+
+LunarDB prioritizes safety first, we've added a hashing system and **COMMANDS** for you (the developer)
+leverage your database to be secure as possible!
+
+## HASH SHA256
+
+Hashes a **KEY** with the **SHA-256** encryption method
+
+### Syntax for HASH SHA256
+
+`HASH SHA256 key`
+
+### Example and output for HASH SHA256
+
+```bash
+HASH SHA256 hello
+```
+
+Output: `d6bb06a930160bf314cea9718eac86126be323c804c9f770db779e0773616108` (SHA256)
+
+## HASH MURMUR3
+
+Hashes a **KEY** with the **MURMUR3** encryption method
+
+### Example and output for HASH MURMUR3
+
+```bash
+HASH MURMUR3 hello
+```
+
+Output: `3863771492` (MURMUR3)
+
+## HASH ROTATE
+
+Hashes/Shifts a **INPUT** base on how many shifts you've given (Checkout Caesar Encryption for details)
+
+### Example of HASH ROTATE
+
+```bash
+HASH ROTATE hello 3
+> khoor
+```
+
+hello - Input
+3 - the number of shifts it's given
+
 **For more information please visit the [official docs](https://lunardbdocs.vercel.app) website!**
