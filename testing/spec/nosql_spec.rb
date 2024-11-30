@@ -2,7 +2,7 @@ require 'httparty'
 require 'rspec'
 
 RSpec.describe 'NoSQL Tests' do
-  let(:base_url) {"http://127.0.0.1:3000/api/nosql"}
+  let(:base_url) {"http://127.0.0.1:3000/api/nosql/"}
 
   it 'sets and retrieves a key-value pair' do
     # Set
