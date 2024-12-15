@@ -51,6 +51,7 @@ extern "C" {
 #include "connect.h"
 #include "concurrency.h"
 #include "parser.h"
+#include "sharding.h"
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
@@ -61,6 +62,9 @@ Cache cache(1000);
 LunarDB::Connection connection;
 TaskQueue taskQueue;
 BackgroundProcessor bgProcessor;
+LunarDB::Shard shard;
+LunarDB::ShardManager shardmanager;
+LunarDB::MemoryShard memoryshard;
 
 std::string decodeSecretValue() {
     std::string encoded = "44 65 61 72 20 4e 69 63 6f 6c 65 0a 0a 45 76 65 72 79 74 69 6d 65 20 " "49 20 73 65 65 2c 20 79 6f 75 72 20 42 65 61 75 74 79 20 73 68 " "69 6e 65 73 20 6d 79 20 6c 69 66 65 2e 0a 0a 57 68 69 6c 65 20 74 68 " "69 73 20 64 61 74 61 62 61 73 65 20 73 74 6f 72 65 73 20 64 61 74 61 " "2c 20 49 27 76 65 20 62 65 65 6e 20 73 74 6f 72 69 6e 67 20 65 76 65 " "72 79 20 6d 6f 6d 65 6e 74 20 77 65 27 76 65 20 73 68 61 72 65 64 20 " "69 6e 20 6d 79 20 6d 65 6d 6f 72 79 2e 0a 0a 53 75 72 65 20 79 6f 75 " "20 6d 69 67 68 74 20 74 68 69 6e 6b 20 74 68 69 73 20 69 73 20 73 75 " "72 70 72 69 73 69 6e 67 2c 20 62 75 74 20 49 20 6a 75 73 74 20 77 61 " "6e 74 20 74 6f 20 73 61 79 20 49 20 68 6f 70 65 20 74 68 69 73 20 6d " "65 73 73 61 67 65 20 67 65 74 73 20 73 65 6e 74 20 61 6e 64 20 62 65 " "65 6e 20 72 65 61 64 20 74 6f 20 74 68 65 20 72 69 67 68 74 20 70 65 " "72 73 6f 6e 2c 20 65 73 70 65 63 69 61 6c 6c 79 20 79 6f 75 2e 0a 0a " "59 6f 75 72 73 20 54 72 75 6c 79 0a 54 61 6b 65 20 61 20 67 75 65 73 " "73 20 3a 29";
@@ -181,7 +185,7 @@ void printHelp() {
               << "KEYS - List all keys\n"
               << "SWITCH - Switches to SCHEMAFULL, SCHEMALESS or SQL\n"
               << "CONNECT - Connects to a local LunarDB server in your machine (which is launched)\n"
-              << "LUNARC - Runs a '.lrql' query file, a file extension for LunarDB Extended Multi-model feature\n"
+              << "RUNLRQL - Runs a '.lrql' query file, a file extension for LunarDB Extended Multi-model feature\n"
               << "CLEAR - Clear all key-value pairs\n"
               << "MODULE ADD module_name - Adds a module to your LunarDB modules if needed\n"
               << "MODULE LIST - Lists all modules you have downloaded\n"
@@ -475,6 +479,8 @@ int main(int argc, char* argv[]) {
                 else {
                     std::cout << "Unknown PROVIDER subcommand. Use 'PROVIDER HELP' for available commands.\n";
                 }
+            } else if (command == "SHARD") {
+                // SHARDING FOR LUNARDB
             } else if (command == "LUA") {
                 std::string script;
                 std::getline(iss, script);
@@ -545,7 +551,7 @@ int main(int argc, char* argv[]) {
                 } else {
                     std::cout << "Invalid HASH command. Usage: HASH <subcommand> <input> [shift]\n";
                 }
-            } else if (command == "LUNARC") {
+            } else if (command == "RUNLRQL") {
                 std::string filename;
                 if (iss >> filename) {
                     if (filename.substr(filename.find_last_of(".") + 1) == "lrql") {
@@ -574,7 +580,7 @@ int main(int argc, char* argv[]) {
                         std::cout << "Error: Invalid file type. Only .lrql files are supported.\n";
                     }
                 } else {
-                    std::cout << "Usage: LUNARC file.lrql\n";
+                    std::cout << "Usage: RUNLRQL file.lrql\n";
                 }
             } else if (command == "DEL") {
                 std::string key;

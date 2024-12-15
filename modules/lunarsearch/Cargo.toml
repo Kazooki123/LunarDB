@@ -1,6 +1,10 @@
 [package]
 name = "lunarsearch"
+description = "A fast and robust full-text search LunarDB module"
+categories = ["search", "module", "text"]
+authors = ["Kazooki123", "Starloexoliz"]
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 [dependencies]

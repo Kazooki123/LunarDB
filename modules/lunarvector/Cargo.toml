@@ -1,9 +1,11 @@
 [package]
 name = "lunarvector"
+description = "A Vector database module for LunarDB"
+categories = ["vector", "database", "rust", "module"]
 version = "0.1.0"
-author = ["Kazooki123"]
-license = "MIT"
+authors = ["Kazooki123", "StarloExoliz"]
 edition = "2021"
+license = "MIT"
 
 [lib]
 name = "lunarvector"
