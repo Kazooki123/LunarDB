@@ -1,0 +1,67 @@
+LUNARDB LICENSE AGREEMENT (LLA) v1.0
+
+
+1. Grant of License
+
+The "LunarDB License Agreement" (LLA) allows the following rights for all users:
+
+- Usage: You may use LunarDB for personal and commercial purposes.
+
+- Modification: You may modify LunarDB's source code to suit your needs.
+
+- Distribution: You may distribute modified or unmodified versions of LunarDB under the terms of this license.
+
+
+2. Forking and Redistribution
+
+To ensure fairness and openness, the following conditions apply to forks and redistributions:
+
+- 2.1 Public Availability: All forks and modified versions of LunarDB must remain publicly available under this license. Private forks or modifications are PROHIBITED.
+
+- 2.2 Attribution: Forks and redistributions must include the following:
+  - Credit to the ORIGINAL LunarDB author(s).
+  - A copy of this license agreement.
+
+- 2.3 No Anonymous Forks: Forks and redistributions must clearly identify the responsible entity (person or organization). Anonymous modifications or redistributions are strictly prohibited.
+
+
+3. Contributions
+
+- Contributions to LunarDB(e.g., pull request, bug fixes, or new features) are welcome and encouraged.
+- All contributions will be governed under this license agreement and must not include proprietary or conflicting licenses.
+
+
+4. Prohibited Use
+
+The following actions are STRICTLY prohibited under this license:
+
+- 4.1 Private Forking: Creating a private fork or modified version of LunarDB.
+
+- 4.2 Anonymous Redistribution: Sharing or distributing LunarDB's source code without identifying yourself or your organization.
+
+- 4.3 Malicious Use: Using LunarDB to harm, exploit, or violate laws in jurisdiction.
+
+
+5. Disclaimer of Warranty
+
+LunarDB is provided "as is" without any warranty. The author(s) of LunarDB are not liable for damages arising from use or misuse of the software.
+
+
+6. Enforcement and Termination
+
+- Failure to comply with this license agreement will result in immediate termination of rights to use, modify, or distribute LunarDB.
+
+- The author(s) reserve the right to enforce compliance with this license agreement.
+
+
+7. License Acceptance
+
+By using, modifying, or distributing LunarDB, you agree to all terms set forth in this license.
+
+
+8. Contact Information
+
+For questions or clarifications regarding this license, please contact the author(s) of LunarDB.
+
+
+END OF THE LICENSE AGREEMENT
