@@ -170,4 +170,6 @@ Feel free to contribution as it is open for all developers! Just make sure to fo
 
 ## ©️LICENSE
 
-LunarDB is under the LICENSE of MIT.
+LunarDB is under the LICENSE of [MIT](https://github.com/Kazooki123/LunarDB/blob/main/LICENSE)
+
+And the [LunarDB License Agreement (LLA)](https://github.com/Kazooki123/LunarDB/blob/main/LUNARDB_LICENSE.txt)
