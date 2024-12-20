@@ -30,9 +30,6 @@ dump/
 # openssl
 src/openssl/
 
-# src/include (crow-cpp)
-src/include/
-
 # benchmarks
 benchmarks/
 

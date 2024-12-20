@@ -54,7 +54,7 @@ extern "C" {
 #include "concurrency.h"
 #include "parser.h"
 #include "sharding.h"
-#include "include/crow.h"
+#include "crow/include/crow.h"
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
