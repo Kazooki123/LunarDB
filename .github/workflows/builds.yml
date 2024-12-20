@@ -21,13 +21,13 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential liblua5.4-dev libpqxx-dev libpq-dev libcurl4-openssl-dev
+        sudo apt-get install -y build-essential liblua5.4-dev libpqxx-dev libpq-dev libcurl4-openssl-dev libboost-all-dev libasio-dev
 
     - name: Compile
       run: |
         mkdir -p bin
         cd src
-        g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp parser.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -o ../bin/lunar
+        g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp parser.cpp sharding.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunar
 
     - name: Upload artifact (Linux)
       if: matrix.os == 'ubuntu-latest'

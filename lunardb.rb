@@ -9,8 +9,8 @@ class Lunar < Formula
   depends_on "libpqxx"
 
   def install
-    system "g++", "-std=c++17", "main.cpp", "cache.cpp", "saved.cpp", "sql.cpp", "module.cpp", "hashing.cpp",
-           "-I#{Formula["lua"].opt_include}/lua", "-llua", "-lpqxx", "-lpq", "-o", "lunar"
+    system "g++", "-std=c++17", "main.cpp", "cache.cpp", "concurrency.cpp", "saved.cpp", "sql.cpp", "module.cpp", "parser.cpp", "sharding.cpp", "hashing.cpp",
+           "-I#{Formula["lua"].opt_include}/lua", "-llua", "-lpqxx", "-lpq", "-lcurl", "-lboost_system", "-pthread", "-o", "lunar"
     bin.install "lunar"
   end
 

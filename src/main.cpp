@@ -20,7 +20,7 @@
 **
 **/
 
-// To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o ../bin/lunar"
+// To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lboost_system -pthread -o ../bin/lunar"
 
 #include <iostream>
 #include <string>
@@ -29,6 +29,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
+#include <thread>
+#include <mutex>
 
 extern "C" {
     #include <lua5.4/lua.h>
@@ -52,6 +54,7 @@ extern "C" {
 #include "concurrency.h"
 #include "parser.h"
 #include "sharding.h"
+#include "include/crow.h"
 
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
@@ -62,22 +65,22 @@ Cache cache(1000);
 LunarDB::Connection connection;
 TaskQueue taskQueue;
 BackgroundProcessor bgProcessor;
-LunarDB::Shard shard;
-LunarDB::ShardManager shardmanager;
-LunarDB::MemoryShard memoryshard;
+LunarDB::ShardManager shardManager(4);
+std::mutex cacheMutex;
+crow::SimpleApp app;
 
 std::string decodeSecretValue() {
     std::string encoded = "44 65 61 72 20 4e 69 63 6f 6c 65 0a 0a 45 76 65 72 79 74 69 6d 65 20 " "49 20 73 65 65 2c 20 79 6f 75 72 20 42 65 61 75 74 79 20 73 68 " "69 6e 65 73 20 6d 79 20 6c 69 66 65 2e 0a 0a 57 68 69 6c 65 20 74 68 " "69 73 20 64 61 74 61 62 61 73 65 20 73 74 6f 72 65 73 20 64 61 74 61 " "2c 20 49 27 76 65 20 62 65 65 6e 20 73 74 6f 72 69 6e 67 20 65 76 65 " "72 79 20 6d 6f 6d 65 6e 74 20 77 65 27 76 65 20 73 68 61 72 65 64 20 " "69 6e 20 6d 79 20 6d 65 6d 6f 72 79 2e 0a 0a 53 75 72 65 20 79 6f 75 " "20 6d 69 67 68 74 20 74 68 69 6e 6b 20 74 68 69 73 20 69 73 20 73 75 " "72 70 72 69 73 69 6e 67 2c 20 62 75 74 20 49 20 6a 75 73 74 20 77 61 " "6e 74 20 74 6f 20 73 61 79 20 49 20 68 6f 70 65 20 74 68 69 73 20 6d " "65 73 73 61 67 65 20 67 65 74 73 20 73 65 6e 74 20 61 6e 64 20 62 65 " "65 6e 20 72 65 61 64 20 74 6f 20 74 68 65 20 72 69 67 68 74 20 70 65 " "72 73 6f 6e 2c 20 65 73 70 65 63 69 61 6c 6c 79 20 79 6f 75 2e 0a 0a " "59 6f 75 72 73 20 54 72 75 6c 79 0a 54 61 6b 65 20 61 20 67 75 65 73 " "73 20 3a 29";
 
-        std::string decoded;
-        std::istringstream hex_chars_stream(encoded);
-        while(hex_chars_stream.good()) {
-            std::string hex_char;
-            hex_chars_stream >> hex_char;
-            char decoded_char = std::stoi(hex_char, nullptr, 16);
-            decoded += decoded_char;
-        }
-        return decoded;
+    std::string decoded;
+    std::istringstream hex_chars_stream(encoded);
+    while(hex_chars_stream.good()) {
+        std::string hex_char;
+        hex_chars_stream >> hex_char;
+        char decoded_char = std::stoi(hex_char, nullptr, 16);
+        decoded += decoded_char;
+    }
+    return decoded;
 }
 
 enum class Mode {
@@ -315,6 +318,101 @@ bool checkHealth() {
     }
 }
 
+void startApiServer(int port) {
+    CROW_ROUTE(app, "/health")
+    .methods("GET"_method)
+    ([](const crow::request& req) {
+        crow::json::wvalue response;
+        bool isHealthy = checkHealth();
+        response["status"] = isHealthy ? "healthy" : "unhealthy";
+        return crow::response(isHealthy ? 200 : 503, response);
+    });
+
+    CROW_ROUTE(app, "/api/v1/cache")
+    .methods("GET"_method)
+    ([](const crow::request& req) {
+        std::lock_guard<std::mutex> lock(cacheMutex);
+        auto keys = cache.keys();
+        crow::json::wvalue response;
+        crow::json::wvalue::list keyList;
+        for (const auto& key : keys) {
+            keyList.push_back(key);
+        }
+        response["keys"] = std::move(keyList);
+        return crow::response(response);
+    });
+
+    CROW_ROUTE(app, "/api/v1/cache/<string>")
+    .methods("GET"_method)
+    ([](const crow::request& req, std::string key) {
+        std::lock_guard<std::mutex> lock(cacheMutex);
+        std::string value = cache.get(key);
+        if (value.empty()) {
+            return crow::response(404);
+        }
+        crow::json::wvalue response;
+        response["key"] = key;
+        response["value"] = value;
+        return crow::response(response);
+    });
+
+    CROW_ROUTE(app, "/api/v1/cache/<string>")
+    .methods("PUT"_method)
+    ([](const crow::request& req, std::string key) {
+        auto x = crow::json::load(req.body);
+        if (!x) {
+            return crow::response(400, "Invalid JSON");
+        }
+
+        if (!x.has("value")) {
+            return crow::response(400, "Missing value field");
+        }
+
+        std::string value = x["value"].s();
+        int ttl = x.has("ttl") ? x["ttl"].i() : 0;
+
+        std::lock_guard<std::mutex> lock(cacheMutex);
+        cache.set(key, value, ttl);
+
+        return crow::response(200);
+    });
+
+    CROW_ROUTE(app, "/api/v1/cache/<string>")
+    .methods("DELETE"_method)
+    ([](const crow::request& req, std::string key) {
+        std::lock_guard<std::mutex> lock(cacheMutex);
+        if (cache.del(key)) {
+            return crow::response(200);
+        }
+        return crow::response(404);
+    });
+
+    CROW_ROUTE(app, "/api/v1/sql")
+    .methods("POST"_method)
+    ([&](const crow::request& req) {
+        auto x = crow::json::load(req.body);
+        if (!x || !x.has("query")) {
+            return crow::response(400, "Invalid JSON or missing query field");
+        }
+
+        std::string query = x["query"].s();
+        SQL sql(cache);
+        std::string result = sql.executeQuery(query);
+
+        crow::json::wvalue response;
+        response["result"] = result;
+        return crow::response(response);
+    });
+
+    // app.after_handle([](crow::response& res) {
+    //     res.add_header("Access-Control-Allow-Origin", "*");
+    //     res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    //     res.add_header("Access-Control-Allow-Headers", "Content-Type");
+    // });
+
+    app.port(port).multithreaded().run();
+}
+
 int main(int argc, char* argv[]) {
     if (argc > 1) {
         std::cout << "Debug: Argument received:" << argv[1] << std::endl;
@@ -355,6 +453,17 @@ int main(int argc, char* argv[]) {
     bgProcessor.schedulePersistence("autosave.db");  // Auto save every 15 minutes
 
     initializeLua();
+
+    int apiPort = 8080;  // default port
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--api-port" && i + 1 < argc) {
+            apiPort = std::stoi(argv[i + 1]);
+            i++;
+        }
+    }
+
+    std::thread apiThread(startApiServer, apiPort);
+    std::cout << "API server started on port " << apiPort << std::endl;
 
     while (true) {
         std::cout << "> ";
@@ -480,7 +589,38 @@ int main(int argc, char* argv[]) {
                     std::cout << "Unknown PROVIDER subcommand. Use 'PROVIDER HELP' for available commands.\n";
                 }
             } else if (command == "SHARD") {
-                // SHARDING FOR LUNARDB
+                std::string subCommand;
+                if (iss >> subCommand) {
+                    if (subCommand == "INFO") {
+                        std::cout << "Total Shards: " << shardManager.getShardCount() << "\n";
+                        std::cout << "Total Keys: " << shardManager.getTotalKeyCount() << "\n";
+                    } else if (subCommand == "REBALANCE") {
+                        int newShardCount;
+                        if (iss >> newShardCount && newShardCount > 0) {
+                            try {
+                                shardManager.rebalance(newShardCount);
+                                std::cout << "Shards rebalanced to " << newShardCount << " shards\n";
+                            } catch (const std::exception& e) {
+                                std::cout << "Rebalancing failed: " << e.what() << "\n";
+                            }
+                        } else {
+                            std::cout << "Invalid shard count\n";
+                        }
+                    } else if (subCommand == "LOCATE") {
+                        std::string key;
+                        if (iss >> key) {
+                            size_t shardIndex = shardManager.getShardIndex(key);
+                            std::cout << "Key '" << key << "' is located in Shard " << shardIndex << "\n";
+                        } else {
+                            std::cout << "Please provide a key\n";
+                        }
+                    } else {
+                        std::cout << "Shard subcommands:\n"
+                                << "  SHARD INFO         - Show number of shards\n"
+                                << "  SHARD CREATE <n>   - Create n shards\n"
+                                << "  SHARD LOCATE <key> - Find which shard a key belongs to\n";
+                    }
+                }
             } else if (command == "LUA") {
                 std::string script;
                 std::getline(iss, script);
@@ -749,6 +889,8 @@ int main(int argc, char* argv[]) {
                     return 1;
                 }
             } else if (command == "QUIT") {
+                app.stop();
+                apiThread.join();
                 break;
             } else {
                 std::cout << "Unknown command. Check for LunarDB commands ABOVE.\n";
