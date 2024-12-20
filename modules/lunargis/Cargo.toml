@@ -1,0 +1,11 @@
+[package]
+name = "lunargis"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+geo = "0.25"
+geojson = "0.25"
+rstar = "0.11"
+ffi = "1.0"
+cbindgen = "0.24"
