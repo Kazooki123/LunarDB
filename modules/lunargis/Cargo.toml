@@ -1,7 +1,10 @@
 [package]
 name = "lunargis"
+description = "A Geographic/Spatial rust module extension for LunarDB"
 version = "0.1.0"
+authors = ["StarloExoliz"]
 edition = "2021"
+license = "MIT"
 
 [dependencies]
 geo = "0.25"

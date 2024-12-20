@@ -8,6 +8,6 @@ pub struct GeometryUtils;
 
 impl GeometryUtils {
     pub fn create_point(lat: f64, lon: f64) -> GeoPoint {
-            GeoPoint::new(lat, lon)
-                }
-                }
+        GeoPoint::new(lat, lon)
+    }
+}
