@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add --no-cache g++ make lua5.4-dev libpq-dev wget cmake curl-dev
+RUN apk add --no-cache g++ make lua5.4-dev libpq-dev wget cmake curl-dev boost-dev asio-dev
 
 WORKDIR /usr/src/
 
