@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17
-LDFLAGS = -l/usr/include/lua5.4 -llua5.4
+LDFLAGS = -l/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread
 
 SRCDIR = src
 BUILDDIR = bin

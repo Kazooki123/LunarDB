@@ -7,8 +7,8 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-geo = "0.25"
-geojson = "0.25"
-rstar = "0.11"
-ffi = "1.0"
+geo = "0.29"
+rstar = "0.12"
+ffi = "0.1.1"
 cbindgen = "0.24"
+geojson = "0.24.1"
