@@ -63,7 +63,17 @@ One of the project maintainers will review your pull request, provide feedback i
 
 If you're recompiling lunar.exe make sure to run this command with [g++](https://gcc.gnu.org/):
 
+### Important Note
+
+**Note:** You would need:
+
+- The Source codes for **Lua v5.4.4**
+- For Linux this would be `liblua5.4-dev` (Ubuntu) and `lua-dev` (Arch)
+
 Compiling for Windows:
+
+**⚠️ LUNARDB IS CURRENTLY ON SUPPORT FOR LINUX FOR NOW SO COMPILING MIGHT BROKE THE MAIN WINDOWS EXE FILE AS `main.cpp` CONTAINS
+LINUX-ONLY SYNTAXES FOR LINUX `g++` ⚠️**
 
 ```bash
 g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
@@ -76,14 +86,14 @@ Compiling for Linux:
 
 ```bash
 sudo apt update
-sudo apt install build-essential
+sudo apt install build-essential liblua5.4-dev libpqxx-dev libpq-dev libcurl4-openssl-dev libboost-all-dev libasio-dev
 ```
 
 Navigate to "src/" and then
 Run this:
 
 ```bash
-g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunar
+g++ -std=c++17 main.cpp core.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunar
 ```
 
 ## Contribution Guidelines

@@ -19,7 +19,7 @@ COPY . .
 
 RUN mkdir -p modules
 
-RUN g++ -std=c++17 src/main.cpp src/cache.cpp src/connect.cpp src/concurrency.cpp src/saved.cpp src/sql.cpp src/module.cpp src/parser.cpp src/sharding.cpp src/hashing.cpp -I/usr/include/lua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o bin/lunar $(pkg-config --libs lua5.4) && \
+RUN g++ -std=c++17 src/main.cpp src/core.cpp src/cache.cpp src/connect.cpp src/concurrency.cpp src/saved.cpp src/sql.cpp src/module.cpp src/parser.cpp src/sharding.cpp src/hashing.cpp -I/usr/include/lua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o bin/lunar $(pkg-config --libs lua5.4) && \
     chmod +x bin/lunar
 
 WORKDIR /usr/src/lunardb/bin

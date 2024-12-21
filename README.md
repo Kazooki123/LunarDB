@@ -124,45 +124,7 @@ And you're done! You should have the **LunarDB** Docker Image in your machine no
 
 ## ⚙️Compiling LunarDB
 
-When it comes to Compiling **LunarDB**, there are few methods to compile it
-Currently, We use **G++/GCC** for compiling C++ files and then output them as executables!
-
-### Important Note
-
-**Note:** You would need:
-
-- The Source codes for **Lua v5.4.4**
-- For Linux this would be `liblua5.4-dev` (Ubuntu) and `lua-dev` (Arch)
-
-### 🪟Compiling for Windows
-
-**⚠️ LUNARDB IS CURRENTLY ON SUPPORT FOR LINUX FOR NOW SO COMPILING MIGHT BROKE THE MAIN WINDOWS EXE FILE AS `main.cpp` CONTAINS
-LINUX-ONLY SYNTAXES FOR LINUX `g++` ⚠️**
-
-For Compiling the **LunarDB CLI** in **Windows**, you'll need to downlad [GCC](https://gcc.gnu.org/install/download.html)
-Once done and all setup, you can compile the C++ files with this command:
-
-```bash
-g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
-```
-
-### 🐧Compiling for Linux
-
-To compile **LunarDB** for Linux support, you'll obviously need a **Linux Terminal** for it.
-If you are using *Windows*, you'll need to install a **WSL** app (we'll use the Ubuntu WSL for simplicity)
-
-Then run this commands:
-
-```bash
-sudo apt update
-sudo apt install build-essential
-```
-
-After that, head to "src/" and run this to compile for **Linux** support:
-
-```bash
-g++ -std=c++17 main.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunar
-```
+Please refer to the [CONTRIBUTING](CONTRIBUTING.md) guide.
 
 ## 🤝CONTRIBUTIONS
 
