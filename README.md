@@ -14,12 +14,12 @@ LunarDB is a **multi-model, key-value store, cache, memory based database** that
 
 A Guide to **Installing LunarDB**!
 
-### 💽Git pull (Recommended)
+### 💽Git clone (Recommended)
 
-If you want the full source code of **LunarDB** and **compile** it for yourself then you can run:
+If you want the full source code of **LunarDB** for yourself then you can run:
 
 ```bash
-git pull https://github.com/Kazooki123/lunardb.git
+git clone https://github.com/Kazooki123/lunardb.git
 ```
 
 ### 🪟Windows

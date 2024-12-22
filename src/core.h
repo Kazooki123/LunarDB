@@ -60,8 +60,6 @@ void printLunarLogo();
 void printHelp();
 void printSwitchOptions();
 void printProviderHelp();
-bool isSecretCommand(const std::string& input);
-std::string decodeSecretValue();
 bool getProviderConfig(lunardb::providers::ProviderConfig& config);
 void initializeLua();
 void closeLua();
