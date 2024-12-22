@@ -1,0 +1,8 @@
+language = "C"
+output = "lunarstream.h"
+
+[export]
+include = ["stream_new", "stream_add_message", "stream_free", "string_free"]
+
+[parse]
+parse_deps = false

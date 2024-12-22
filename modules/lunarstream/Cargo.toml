@@ -1,0 +1,23 @@
+[package]
+name = "lunarstream"
+description = "A Data Streaming module for LunarDB"
+version = "0.1.0"
+authors = ["Kazooki123", "StarloExoliz"]
+edition = "2021"
+license = "Apache-2.0"
+
+[dependencies]
+
+[dependencies.uuid]
+version = "1.11"
+features = [
+    "v4",
+    "fast-rng",
+    "macro-diagnostics",
+]
+
+[build-dependencies]
+cbindgen = "0.24"
+
+[build]
+build = "build.rs"

@@ -1,4 +1,4 @@
-use geo::{polygon, Point, Polygon, CoordsIter, Contains, Coord};
+use geo::{Point, Polygon, LineString, Contains};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 
 pub struct GeometryFeature {
@@ -7,12 +7,10 @@ pub struct GeometryFeature {
 
 impl GeometryFeature {
     pub fn new(coordinates: Vec<(f64, f64)>) -> Self {
-        let exterior: Vec<Coord<f64>> = coordinates
-            .into_iter()
-            .map(|(x, y)| Coord { x, y })
-            .collect();
+        let line_string = LineString::from(coordinates);
 
-        let polygon = polygon!{ exterior };
+        let polygon = Polygon::new(line_string, vec![]);
+
         GeometryFeature { polygon }
     }
 
@@ -29,9 +27,10 @@ pub fn features_to_geojson(features: Vec<GeometryFeature>) -> String {
             let coords: Vec<Vec<f64>> = feature
                 .polygon
                 .exterior()
-                .coords_iter()
-                .map(|coord| vec![coord.x, coord.y])
+                .points()
+                .map(|point| vec![point.x(), point.y()])
                 .collect();
+
             Feature {
                 geometry: Some(Geometry::new(Value::Polygon(vec![coords]))),
                 properties: None,

@@ -10,5 +10,7 @@ license = "MIT"
 geo = "0.29"
 rstar = "0.12"
 ffi = "0.1.1"
-cbindgen = "0.24"
 geojson = "0.24.1"
+
+[build-dependencies]
+cbindgen = "0.24"

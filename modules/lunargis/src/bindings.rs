@@ -52,7 +52,7 @@ pub extern "C" fn free_spatial_index(index_ptr: *mut SpatialIndex) {
         return;
     }
     unsafe {
-        Box::from_raw(index_ptr);
+        let _ = Box::from_raw(index_ptr);
     }
 }
 
@@ -62,6 +62,6 @@ pub extern "C" fn free_string(s: *mut c_char) {
         return;
     }
     unsafe {
-        CString::from_raw(s);
+        let _ = CString::from_raw(s);
     }
 }
