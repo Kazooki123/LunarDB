@@ -46,11 +46,6 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
         }
-
-        if (isSecretCommand(argv[1])) {
-            std::cout << decodeSecretValue() << std::endl;
-            return 0;
-        }
     }
 
     // Removed Cache local variable as it is moved to be global

@@ -23,21 +23,6 @@
 #include "core.h"
 
 
-std::string decodeSecretValue() {
-    std::string encoded = "44 65 61 72 20 4e 69 63 6f 6c 65 0a 0a 45 76 65 72 79 74 69 6d 65 20 " "49 20 73 65 65 2c 20 79 6f 75 72 20 42 65 61 75 74 79 20 73 68 " "69 6e 65 73 20 6d 79 20 6c 69 66 65 2e 0a 0a 57 68 69 6c 65 20 74 68 " "69 73 20 64 61 74 61 62 61 73 65 20 73 74 6f 72 65 73 20 64 61 74 61 " "2c 20 49 27 76 65 20 62 65 65 6e 20 73 74 6f 72 69 6e 67 20 65 76 65 " "72 79 20 6d 6f 6d 65 6e 74 20 77 65 27 76 65 20 73 68 61 72 65 64 20 " "69 6e 20 6d 79 20 6d 65 6d 6f 72 79 2e 0a 0a 53 75 72 65 20 79 6f 75 " "20 6d 69 67 68 74 20 74 68 69 6e 6b 20 74 68 69 73 20 69 73 20 73 75 " "72 70 72 69 73 69 6e 67 2c 20 62 75 74 20 49 20 6a 75 73 74 20 77 61 " "6e 74 20 74 6f 20 73 61 79 20 49 20 68 6f 70 65 20 74 68 69 73 20 6d " "65 73 73 61 67 65 20 67 65 74 73 20 73 65 6e 74 20 61 6e 64 20 62 65 " "65 6e 20 72 65 61 64 20 74 6f 20 74 68 65 20 72 69 67 68 74 20 70 65 " "72 73 6f 6e 2c 20 65 73 70 65 63 69 61 6c 6c 79 20 79 6f 75 2e 0a 0a " "59 6f 75 72 73 20 54 72 75 6c 79 0a 54 61 6b 65 20 61 20 67 75 65 73 " "73 20 3a 29";
-
-    std::string decoded;
-    std::istringstream hex_chars_stream(encoded);
-    while(hex_chars_stream.good()) {
-        std::string hex_char;
-        hex_chars_stream >> hex_char;
-        char decoded_char = std::stoi(hex_char, nullptr, 16);
-        decoded += decoded_char;
-    }
-    return decoded;
-}
-
-
 // Function implementations
 void printColoredText(const std::string& text, const std::string& color) {
     if (color == "blue") {
@@ -109,12 +94,6 @@ void printProviderHelp() {
               << "  PROVIDER ATTACH <name>       - Connect to a database provider\n"
               << "  PROVIDER DETACH             - Disconnect current provider\n"
               << "  PROVIDER STATUS             - Show current provider status\n";
-}
-
-bool isSecretCommand(const std::string& input) {
-    const std::string secret = "--nicole";
-    std::hash<std::string> hasher;
-    return hasher(input) == hasher(secret);
 }
 
 bool getProviderConfig(lunardb::providers::ProviderConfig& config) {
