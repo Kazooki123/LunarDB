@@ -4,7 +4,8 @@ description = "A fast and robust full-text search LunarDB module"
 categories = ["search", "module", "text"]
 authors = ["Kazooki123", "Starloexoliz"]
 version = "0.1.0"
+keywords =["search", "full-text", "fast", "module"]
 edition = "2021"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [dependencies]

@@ -3,6 +3,7 @@ name = "lunargis"
 description = "A Geographic/Spatial rust module extension for LunarDB"
 version = "0.1.0"
 authors = ["StarloExoliz"]
+keywords = ["geography", "points", "regions", "spatial", "math", "module"]
 edition = "2021"
 license = "MIT"
 

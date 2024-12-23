@@ -2,9 +2,15 @@
 name = "lunarstream"
 description = "A Data Streaming module for LunarDB"
 version = "0.1.0"
-authors = ["Kazooki123", "StarloExoliz"]
+authors = ["Kazooki123 <mgamerdinge146@gmail.com>", "StarloExoliz"]
 edition = "2021"
+keywords =["data", "stream", "module", "real-time"]
 license = "Apache-2.0"
+build = "build.rs"
+
+[lib]
+name = "lunarvector"
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 
@@ -18,6 +24,3 @@ features = [
 
 [build-dependencies]
 cbindgen = "0.24"
-
-[build]
-build = "build.rs"

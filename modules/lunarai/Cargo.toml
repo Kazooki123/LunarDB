@@ -1,7 +1,11 @@
 [package]
 name = "lunarai"
+description = "A Artificial Intelligence embeddings for LLMs in LunarDB"
+authors = ["Kazooki123"]
+keywords = ["ai", "embeddings", "llm", "module"]
 version = "0.1.0"
 edition = "2021"
+license = "GPL-2.0-or-later"
 
 [dependencies]
 burn = { version = "0.14.0", features = ["wgpu"] }
