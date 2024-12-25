@@ -1,29 +1,30 @@
-use std::collections::HashMap;
-use std::error::Error;
-// use tch::{nn, Device, Tensor};
+use core::result::Result::Ok;
 
-pub struct ModelManager {
-    models: HashMap<String, nn::Module>,
+use anyhow::Result;
+use rust_bert::pipelines::sentence_embeddings::{
+    SentenceEmbeddingsBuilder, SentenceEmbeddingsModel,
+};
+use cached::proc_macro::cached;
+
+pub struct Model {
+    model: SentenceEmbeddingsModel,
+    name: String,
 }
 
-impl ModelManager {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
+impl Model {
+    pub fn new(name: &str) -> Result<Self> {
+        let model = SentenceEmbeddingsBuilder::local(name)
+            .create_model()?;
         Ok(Self {
-            models: HashMap::new(),
+            model,
+            name: name.to_string(),
         })
     }
 
-    pub fn load_model(&mut self, name: &str, path: &str) -> Result<(), Box<dyn Error>> {
-        let model = nn::Module::load(path, Device::Cpu)?;
-        self.models.insert(name.to_string(), model);
-        Ok(())
-    }
-
-    pub fn run_model(&self, name: &str, input: &[f32]) -> Result<Vec<f32>, Box<dyn Error>> {
-        let model = self.models.get(name).ok_or("Model not found")?;
-        let input_tensor = Tensor::from_slice(input).view([-1, input.len() as i64]);
-        let output = model.forward(&input_tensor);
-        let result: Vec<f32> = Vec::from(output.flatten(0, -1).into());
-        Ok(result)
+    #[cached(size = 100, result = true)]
+    pub async fn generate_embedding(&self, text: &str) -> Result<Embedding> {
+        let embeddings = self.model.encode(&[text])?;
+        let vector = Array1::from_vec(embeddings[0].clone());
+        Ok(Embedding::new(vector, self.name.clone()))
     }
 }

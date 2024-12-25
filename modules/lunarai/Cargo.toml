@@ -6,10 +6,22 @@ keywords = ["ai", "embeddings", "llm", "module"]
 version = "0.1.0"
 edition = "2021"
 license = "GPL-2.0-or-later"
+build = "build.rs"
+
+[lib]
+name = "lunarai"
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-burn = { version = "0.14.0", features = ["wgpu"] }
-tch = "0.17.0"
-ndarray = "0.16.1"
-rust-bert = "0.23.0"
-rusty-machine = "0.5.4"
+tokenizers = "0.15"        # Hugging Face tokenizers
+rust-bert = "0.21"         # Transformer models
+ndarray = "0.15"          # N-dimensional arrays
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"         # Error handling
+anyhow = "1.0"           # Error handling
+rayon = "1.8"            # Parallel processing
+cached = "0.46"          # Caching for embeddings
+
+[build-dependencies]
+cbindgen = "0.26"        # C/C++ bindings generation
