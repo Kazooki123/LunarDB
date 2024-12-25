@@ -1,4 +1,4 @@
-use crate::stream::{Stream};
+use crate::stream::Stream;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

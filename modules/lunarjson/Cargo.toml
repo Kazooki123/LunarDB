@@ -1,6 +1,6 @@
 [package]
 name = "lunarjson"
-description = ["A JSON formatter module for LunarDB"]
+description = "A JSON formatter module for LunarDB"
 authors = ["Kazooki123"]
 keywords = ["json", "database", "index", "module"]
 version = "0.1.0"

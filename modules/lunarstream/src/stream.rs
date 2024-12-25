@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
-use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct Message {

@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "modules/lunarai",
+  "modules/lunargis",
+  "modules/lunarjson",
+  "modules/lunarsearch",
+  "modules/lunarstream",
+  "modules/lunarvector"
+]

@@ -6,4 +6,4 @@ mod bindings;
 
 pub use stream::{Stream, Message};
 pub use manager::{StreamManager, Consumer, ConsumerGroup};
-pub use error::{LunarStreamError};
+pub use error::LunarStreamError;

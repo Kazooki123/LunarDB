@@ -1,6 +1,7 @@
-use rust_bert::pipelines::sentence_embeddings::{SentenceEmbeddingsModel, SentenceEmbeddingsBuilder};
+// use rust_bert::pipelines::sentence_embeddings::{SentenceEmbeddingsBuilder, SentenceEmbeddingsModel};
 use std::error::Error;
 
+#[derive(Debug, Clone)]
 pub struct EmbeddingGenerator {
     model: SentenceEmbeddingsModel,
 }

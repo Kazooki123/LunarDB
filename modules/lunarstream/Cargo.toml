@@ -16,11 +16,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies.uuid]
 version = "1.11"
-features = [
-    "v4",
-    "fast-rng",
-    "macro-diagnostics",
-]
+features = ["v4", "fast-rng", "macro-diagnostics"]
 
 [build-dependencies]
 cbindgen = "0.24"
