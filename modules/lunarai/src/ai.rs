@@ -1,194 +1,76 @@
-use crate::{Embedding, Model, EmbeddingError};
+use crate::{Embedding, EmbeddingError, ModelManager};
+use std::num::NonZero;
 use serde::{Deserialize, Serialize};
-use core::result::Result::Ok;
-use std::collections::HashMap;
-use thiserror::Error;
 use tokio::sync::RwLock;
 use std::sync::Arc;
+use std::path::PathBuf;
+use lru::LruCache;
 
-#[derive(Debug, Error)]
-pub enum AIError {
-    #[error("Model not found: {0}")]
-    ModelNotFound(String),
-    #[error("Configuration error: {0}")]
-    ConfigError(String),
-    #[error("Pipeline error: {0}")]
-    PipelineError(String),
-    #[error("Embedding error: {0}")]
-    EmbeddingError(#[from] EmbeddingError),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AIConfig {
-    pub model_type: String,
-    pub dimension: usize,
-    pub context_window: usize,
-    pub batch_size: usize,
+    pub model_path: PathBuf,
     pub cache_size: usize,
+    pub batch_size: usize,
+    pub use_gpu: bool,
 }
 
 impl Default for AIConfig {
     fn default() -> Self {
         Self {
-            model_type: "all-MiniLM-L6-v2".to_string(),
-            dimension: 384,
-            context_window: 512,
-            batch_size: 32,
+            model_path: PathBuf::from(r"D:\huggingface_cache\models--gpt2\snapshots\607a30d783dfa663caf39e06633721c8d4cfcd7e"),
             cache_size: 10000,
+            batch_size: 32,
+            use_gpu: true,
         }
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct AIPipeline {
     config: AIConfig,
-    models: Arc<RwLock<HashMap<String, Model>>>,
-    embedding_cache: lru::LruCache<String, Embedding>,
+    model_manager: Arc<RwLock<ModelManager>>,
+    embedding_cache: Arc<RwLock<LruCache<String, Embedding>>>,
 }
 
 impl AIPipeline {
     pub fn new(config: AIConfig) -> Self {
         Self {
-            models: Arc::new(RwLock::new(HashMap::new())),
-            embedding_cache: lru::LruCache::new(config.cache_size.try_into().unwrap()),
+            model_manager: Arc::new(RwLock::new(ModelManager::new(config.model_path.clone()))),
+            embedding_cache: Arc::new(RwLock::new(LruCache::new(NonZero::new(config.cache_size).unwrap()))),
             config,
         }
     }
 
-    pub async fn load_model(&self, model_name: &str) -> Result<(), AIError> {
-        let mut models = self.models.write().await;
-        if !models.contains_key(model_name) {
-            let model = Model::new(model_name)
-                .map_err(|e| AIError::ConfigError(e.to_string()))?;
-            models.insert(model_name.to_string(), model);
-        }
-        Ok(())
+    pub async fn initialize(&self) -> Result<(), EmbeddingError> {
+        let mut manager = self.model_manager.write().await;
+        manager.load_gpt2()
+            .map_err(|e| EmbeddingError::ModelError(e.to_string()))
     }
 
-    pub async fn get_model(&self, model_name: &str) -> Result<Arc<Model>, AIError> {
-        let models = self.models.read().await;
-        models
-            .get(model_name)
-            .cloned()
-            .map(Arc::new)
-            .ok_or_else(|| AIError::ModelNotFound(model_name.to_string()))
-    }
+    pub async fn generate_embedding(&self, text: &str) -> Result<Embedding, EmbeddingError> {
+        let cache_key = text.to_string();
 
-    pub async fn generate_embedding(
-        &mut self,
-        text: &str,
-        model_name: Option<String>,
-    ) -> Result<Embedding, AIError> {
-        let cache_key = format!("{}:{}", model_name.as_deref().unwrap_or(&self.config.model_type), text);
-
-        if let Some(cached) = self.embedding_cache.get(&cache_key) {
-            return Ok(cached.clone());
+        // Check cache first
+        {
+            let mut cache = self.embedding_cache.write().await;
+            if let Some(cached) = cache.get(&cache_key) {
+                return Ok(cached.clone());
+            }
         }
 
-        let model_name = model_name.unwrap_or_else(|| self.config.model_type.clone());
-        let model = self.get_model(&model_name).await?;
+        // Generate new embedding
+        let manager = self.model_manager.read().await;
+        let tensor = manager.get_embeddings(text)
+            .map_err(|e| EmbeddingError::GenerationError(e.to_string()))?;
 
-        let embedding = model.generate_embedding(text)
-            .await
-            .map_err(|e| AIError::PipelineError(e.to_string()))?;
+        let embedding = Embedding::from_tensor(tensor, "gpt2".to_string())?;
 
-        self.embedding_cache.put(cache_key, embedding.clone());
+        // Update cache
+        {
+            let mut cache = self.embedding_cache.write().await;
+            cache.put(cache_key, embedding.clone());
+        }
+
         Ok(embedding)
-    }
-
-    pub async fn batch_generate_embeddings(
-        &mut self,
-        texts: Vec<String>,
-        model_name: Option<String>,
-    ) -> Result<Vec<Embedding>, AIError> {
-        use futures::stream::{StreamExt, iter};
-        use futures::stream;
-
-        let model_name = model_name.unwrap_or_else(|| self.config.model_type.clone());
-        let chunks = texts.chunks(self.config.batch_size);
-
-        let mut results = Vec::with_capacity(texts.len());
-
-        for chunk in chunks {
-            let futures = chunk.iter().map(|text| {
-                self.generate_embedding(text, Some(model_name.clone()))
-            });
-
-            let chunk_results: Vec<_> = stream::iter(futures)
-                .buffer_unordered(self.config.batch_size)
-                .collect()
-                .await;
-
-            results.extend(chunk_results.into_iter().collect::<Result<Vec<_>, _>>()?);
-        }
-
-        Ok(results)
-    }
-
-    pub fn update_config(&mut self, new_config: AIConfig) {
-        self.config = new_config;
-        self.embedding_cache = lru::LruCache::new(self.config.cache_size.try_into().unwrap());
-    }
-}
-
-pub trait ModelProvider {
-    fn get_model_info(&self) -> HashMap<String, String>;
-    fn supports_model(&self, model_name: &str) -> bool;
-}
-
-pub trait EmbeddingProvider {
-    fn supports_dimension(&self, dimension: usize) -> bool;
-    fn get_supported_dimensions(&self) -> Vec<usize>;
-}
-
-impl ModelProvider for AIPipeline {
-    fn get_model_info(&self) -> HashMap<String, String> {
-        let mut info = HashMap::new();
-        info.insert(
-            "default_model".to_string(),
-            self.config.model_type.clone(),
-        );
-        info.insert(
-            "dimension".to_string(),
-            self.config.dimension.to_string(),
-        );
-        info
-    }
-
-    fn supports_model(&self, model_name: &str) -> bool {
-        matches!(
-            model_name,
-            "all-MiniLM-L6-v2" | "all-mpnet-base-v2" | "all-distilroberta-v1"
-        )
-    }
-}
-
-impl EmbeddingProvider for AIPipeline {
-    fn supports_dimension(&self, dimension: usize) -> bool {
-        self.get_supported_dimensions().contains(&dimension)
-    }
-
-    fn get_supported_dimensions(&self) -> Vec<usize> {
-        vec![384, 768, 1024]  // Common embedding dimensions
-    }
-}
-
-// Tests
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_pipeline_creation() {
-        let config = AIConfig::default();
-        let pipeline = AIPipeline::new(config);
-        assert_eq!(pipeline.config.model_type, "all-MiniLM-L6-v2");
-    }
-
-    #[tokio::test]
-    async fn test_model_loading() {
-        let config = AIConfig::default();
-        let pipeline = AIPipeline::new(config);
-        let result = pipeline.load_model("all-MiniLM-L6-v2").await;
-        assert!(result.is_ok());
     }
 }

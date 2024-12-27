@@ -23,6 +23,9 @@ dump/
 .tar
 .tar.gz
 
+# target
+target/
+
 # .idea
 **.idea/
 .idea/

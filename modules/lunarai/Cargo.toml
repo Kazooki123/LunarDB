@@ -13,15 +13,21 @@ name = "lunarai"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-tokenizers = "0.15"        # Hugging Face tokenizers
-rust-bert = "0.21"         # Transformer models
-ndarray = "0.15"          # N-dimensional arrays
+tokio = { version = "1.32", features = ["full"] }
+futures = "0.3"
+tokenizers = "0.21"
+safetensors = "0.4.5"
+tch = "0.18.1"
+ndarray = "0.16.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-thiserror = "1.0"         # Error handling
-anyhow = "1.0"           # Error handling
-rayon = "1.8"            # Parallel processing
-cached = "0.46"          # Caching for embeddings
+thiserror = "2.0"
+anyhow = "1.0"
+rayon = "1.8"
+cached = "0.54"
+lru = "0.12.5"
 
 [build-dependencies]
-cbindgen = "0.26"        # C/C++ bindings generation
+cbindgen = "0.26"
+cmake = "0.1"
+torch-sys = "0.18.1"
