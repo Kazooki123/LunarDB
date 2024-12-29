@@ -29,6 +29,7 @@ pub type Result<T> = std::result::Result<T, LunarAIError>;
 pub struct LunarAI {
     embeddings: embeddings::EmbeddingEngine,
     rag: rag::RAGEngine,
+    tokenizer: tokenizer::Tokenizer,
 }
 
 impl LunarAI {
@@ -36,6 +37,7 @@ impl LunarAI {
         Self {
             embeddings: embeddings::EmbeddingEngine::new(),
             rag: rag::RAGEngine::new(),
+            tokenizer: tokenizer::Tokenizer::new(),
         }
     }
 

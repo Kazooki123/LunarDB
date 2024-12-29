@@ -1,7 +1,6 @@
 use nalgebra as na;
 use rand::Rng;
 use rand_distr::{Normal, Distribution};
-use std::collections::HashMap;
 use crate::LunarAIError;
 
 pub struct Dense {

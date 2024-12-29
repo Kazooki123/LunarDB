@@ -1,7 +1,6 @@
 use crate::embeddings::EmbeddingEngine;
 use crate::LunarAIError;
 use hashbrown::HashMap;
-use rayon::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct Document {
