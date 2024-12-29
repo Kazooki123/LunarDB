@@ -4,7 +4,7 @@ LDFLAGS = -l/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthr
 
 SRCDIR = src
 BUILDDIR = bin
-TARGET = $(BUILDDIR)/lunar
+TARGET = $(BUILDDIR)/lunardb
 
 SRCFILES = $(wildcard $(SRCDIR)/*.cpp)
 OBJFILES = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCFILES))

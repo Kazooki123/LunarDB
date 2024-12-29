@@ -1,7 +1,6 @@
 [package]
 name = "lunarvector"
 description = "A Vector database module for LunarDB"
-categories = ["vector", "database", "rust", "module"]
 version = "0.1.0"
 keywords = ["vector", "embeddings", "database", "module"]
 authors = ["Kazooki123", "StarloExoliz"]

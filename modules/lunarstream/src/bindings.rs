@@ -32,13 +32,13 @@ pub extern "C" fn stream_add_message(stream: *mut Stream, payload: *const c_char
 #[no_mangle]
 pub extern "C" fn stream_free(stream: *mut Stream) {
     if !stream.is_null() {
-        unsafe { Box::from_raw(stream) };
+        unsafe { let _ = Box::from_raw(stream); };
     }
 }
 
 #[no_mangle]
 pub extern "C" fn string_free(s: *mut c_char) {
     if !s.is_null() {
-        unsafe { CString::from_raw(s) };
+        unsafe { let _ = CString::from_raw(s); };
     }
 }

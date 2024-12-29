@@ -3,7 +3,7 @@ name: Publish to Homebrew
 on:
   push:
     tags:
-      - 'v0.1.6' 
+      - 'v0.1.6'
 
 jobs:
   publish:
@@ -22,7 +22,7 @@ jobs:
       - name: Compile LunarDB
         run: |
           g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp \
-          -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o bin/lunar
+          -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -o bin/lunardb
 
       - name: Create a release
         id: create_release
@@ -41,4 +41,4 @@ jobs:
       - name: Publish Homebrew Tap
         run: |
           brew tap kazooki123/lunardb
-          brew install lunar
+          brew install lunardb

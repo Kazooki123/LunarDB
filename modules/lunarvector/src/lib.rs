@@ -5,7 +5,6 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 mod vector;
-mod commands;
 
 use vector::LunarVector;
 

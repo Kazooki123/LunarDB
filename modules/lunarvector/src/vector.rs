@@ -1,3 +1,4 @@
+use core::{iter::Iterator, option::Option::{None, Some}};
 use std::time::{Duration, Instant};
 
 pub struct Vector {
@@ -77,7 +78,7 @@ impl LunarVector {
             .iter()
             .map(|v| (v.id().to_string(), cosine_similarity(query, v.data())))
             .collect();
-        
+
         similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
         similarities.truncate(limit);
         similarities

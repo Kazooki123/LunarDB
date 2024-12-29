@@ -1,7 +1,10 @@
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdint>
+#include <cstdlib>
+#include <ostream>
+#include <new>
+
+extern "C" {
 
 int lunar_vector_create(const char *db_key);
 
@@ -16,4 +19,6 @@ int lunar_vector_search(const char *db_key,
 
 int lunar_vector_set_ttl(const char *db_key, const char *vector_id, int ttl_seconds);
 
-void lunar_vector_cleanup(void);
+void lunar_vector_cleanup();
+
+} // extern "C"

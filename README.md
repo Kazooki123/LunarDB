@@ -35,7 +35,7 @@ While **outdated**, you can go to the `installer/` directory and get yourself a 
 You can use and install **Homebrew** and run this:
 
 ```bash
-brew install lunar
+brew install lunardb
 ```
 
 ## 📖Documentation

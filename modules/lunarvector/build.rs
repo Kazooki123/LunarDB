@@ -9,11 +9,11 @@ fn main() {
 
     cbindgen::Builder::new()
         .with_crate(crate_dir)
-        .with_language(cbindgen::Language::C)
+        .with_language(cbindgen::Language::Cxx)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file(out_path.join("lunarvector.h"));
+        .write_to_file(out_path.join("lunarvector.hpp"));
 
     // Tell cargo to invalidate the built crate whenever the header changes
-    println!("cargo:rerun-if-changed=../include/lunarvector.h");
+    println!("cargo:rerun-if-changed=../include/lunarvector.hpp");
 }
