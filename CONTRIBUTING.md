@@ -79,23 +79,6 @@ LINUX-ONLY SYNTAXES FOR LINUX `g++` ⚠️**
 g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
 ```
 
-Compiling for Linux:
-
-1. Open a Linux terminal (we'll use Ubuntu)
-2. Run the following commands:
-
-```bash
-sudo apt update
-sudo apt install build-essential liblua5.4-dev libpqxx-dev libpq-dev libcurl4-openssl-dev libboost-all-dev libasio-dev
-```
-
-Navigate to "src/" and then
-Run this:
-
-```bash
-g++ -std=c++17 main.cpp core.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunardb
-```
-
 ## Contribution Guidelines
 
 - **Code Style**: Follow the existing code style for each language. We use linters and formatters to ensure consistency.

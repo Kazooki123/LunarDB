@@ -124,7 +124,7 @@ And you're done! You should have the **LunarDB** Docker Image in your machine no
 
 ## ⚙️Compiling LunarDB
 
-Please refer to the [CONTRIBUTING](CONTRIBUTING.md) guide.
+Please refer to the [COMPILE GUIDE](COMPILEGUIDE.md) documentation file.
 
 ## 🤝CONTRIBUTIONS
 
