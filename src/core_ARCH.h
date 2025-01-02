@@ -18,11 +18,11 @@
 #include <map>
 #include <unordered_map>
 
-// Lua Integration | UBUNTU
+// Lua | ARCH-BASED OS's
 extern "C" {
-    #include <lua5.4/lua.h>
-    #include <lua5.4/lauxlib.h>
-    #include <lua5.4/lualib.h>
+    #include <lua.h>
+    #include <lauxlib.h>
+    #include <lualib.h>
 }
 
 // Project-specific includes

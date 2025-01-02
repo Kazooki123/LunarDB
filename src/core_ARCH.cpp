@@ -20,7 +20,7 @@
 **
 **/
 
-#include "core.h"
+#include "core_ARCH.h"
 
 // Function implementations
 void printColoredText(const std::string& text, const std::string& color) {

@@ -20,9 +20,9 @@
 **
 **/
 
-// To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lboost_system -pthread -o ../bin/ubuntu/lunardb"
+// To compile we use and run ~> "g++ -std=c++17 main_ARCH.cpp core_ARCH.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua -lllua -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/arch/lunardb"
 
-#include "core.h"
+#include "core_ARCH.h"
 
 // Global Variables
 Cache cache(1000);
