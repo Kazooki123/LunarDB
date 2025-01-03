@@ -25,6 +25,7 @@ dump/
 
 # target
 target/
+tools/target/
 
 # .idea
 **.idea/

@@ -22,7 +22,7 @@
 
 // To compile we use and run ~> "g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lboost_system -pthread -o ../bin/ubuntu/lunardb"
 
-#include "core.h"
+#include "core_MAIN.h"
 
 // Global Variables
 Cache cache(1000);

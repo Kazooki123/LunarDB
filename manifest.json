@@ -1,0 +1,25 @@
+{
+  "version": "0.1.7",
+  "binaries": [
+    {
+      "os": "arch",
+      "path": "bin/arch/lunardb"
+    },
+    {
+      "os": "ubuntu",
+      "path": "bin/ubuntu/lunardb"
+    },
+    {
+      "os": "windows",
+      "path": "bin/windows/lunardb.exe"
+    }
+  ],
+  "files_to_update": [
+    "src/",
+    "tools/"
+  ],
+  "excluded_dirs": [
+    "modules/",
+    "lib/"
+  ]
+}
