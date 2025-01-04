@@ -26,7 +26,7 @@ Navigate to `src/` and then run this, you don't need to include every file
 in the source directory as most are barely finished.
 
 ```bash
-g++ -std=c++17 main.cpp core_MAIN.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunardb
+g++ -std=c++17 main.cpp core_MAIN.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/ubuntu/lunardb
 ```
 
 ## Arch
