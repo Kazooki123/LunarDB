@@ -16,7 +16,7 @@ fi
 
 REPO_URL="https://github.com/Kazooki123/LunarDB/releases/latest/download"
 MANIFEST_PATH="manifest.json"
-VERSION_PATH="version.txt"
+VERSION_PATH="$REPO_URL/version.txt"
 LATEST_VERSION=$(curl -s $VERSION_PATH)
 
 CURRENT_VERSION=$(jq -r '.version' $MANIFEST_PATH)

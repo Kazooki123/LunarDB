@@ -5,13 +5,13 @@ LunarDB in multiple Linux Distros!
 
 ## Note
 
-By default, LunarDB is currently compiled in Ubuntu, files such as `main.cpp`, `core_MAIN.cpp` & `core_MAIN.h` are FOR Ubuntu compiling.
+By default, LunarDB is currently compiled in Ubuntu, files such as `main.cpp`, `core_MAIN.cpp` & `core_MAIN.h`
 
 ## Ubuntu / Debian
 
 Note:
 
-this works for ny Debian-based or Ubuntu-based Operating Systems.
+this works for any Debian-based or Ubuntu-based Operating Systems.
 
 Step 1:
 
@@ -38,7 +38,7 @@ This works at any Arch-based Linux distros (e.g. Endeavour, Manjaro)
 Depending on which Arch-based you're using, in vanilla Arch, you'd need to install
 specific dependencies from scratch like Lua, curl, boost, gcc/g++ and PostgreSQL.
 
-But for Endeavour OS, lua, curl, and gcc are come preinstalled.
+But for Endeavour OS, lua, curl and gcc are come pre-installed.
 
 Step 1:
 
@@ -61,7 +61,7 @@ Step 3:
 Compile
 
 ```bash
-g++ -std=c++17 main_ARCH.cpp core_ARCH.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua -lllua -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/arch/lunardb
+g++ -std=c++17 main_ARCH.cpp core_ARCH.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua -llua -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/arch/lunardb
 ```
 
 Got a problem or issue with this documentation? Please make a PR **:)**

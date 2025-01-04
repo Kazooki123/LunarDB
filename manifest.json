@@ -1,5 +1,5 @@
 {
-  "version": "0.1.7",
+  "version": "0.1.8",
   "binaries": [
     {
       "os": "arch",
@@ -16,7 +16,8 @@
   ],
   "files_to_update": [
     "src/",
-    "tools/"
+    "tools/",
+    "docs/"
   ],
   "excluded_dirs": [
     "modules/",

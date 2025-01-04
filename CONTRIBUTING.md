@@ -10,8 +10,9 @@ LunarDB utilizes a variety of programming languages and technologies, each servi
 
 - **C++** – The core functionality of LunarDB is implemented in C++ for performance optimization and memory management.
 - **Lua** – Lua is used for scripting and extending the system, offering flexibility in configuring and automating tasks within LunarDB.
-- **Go** – The API system is built using Go, providing a robust, efficient way to interact with LunarDB programmatically.
 - **Rust** – Rust is employed for some of LunarDB's modules, ensuring memory safety and high concurrency without sacrificing performance.
+- **Elixir** - Used for things like clustering, monitoring and fault tolerance1
+- **Ruby** - For Unit and Integrated testing, now it's no longer for module handling.
 
 ## How to Contribute
 
