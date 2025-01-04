@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        arch-runner: [arch]
       fail-fast: false
 
     steps:
@@ -24,23 +23,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential liblua5.4-dev libpqxx-dev libpq-dev libcurl4-openssl-dev libboost-all-dev libasio-dev
 
-    - name: Install dependencies (Arch)
-      if: matrix.arch-runner == 'arch'
-      run: |
-        sudo pacman -Syu --noconfirm
-        sudo pacman -S --noconfirm lua postgresql-libs curl boost gcc
-
     - name: Compile (Ubuntu)
       run: |
         mkdir -p bin
         cd src
         g++ -std=c++17 main.cpp core.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp hashing.cpp parser.cpp sharding.cpp -I/usr/include/lua5.4 -llua5.4 -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/lunardb
-
-    - name: Compile (Arch)
-      run: |
-        mkdir -p bin
-        cd src
-        g++ -std=c++17 main_ARCH.cpp core_ARCH.cpp cache.cpp connect.cpp concurrency.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua -llua -lpqxx -lpq -lcurl -lboost_system -pthread -o ../bin/arch/lunardb
 
     - name: Upload artifact (Linux/Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -49,9 +36,3 @@ jobs:
         name: lunar-linux-ubuntu
         path: bin/lunardb
 
-    - name: Upload artifact (Linux/Arch)
-      if: matrix.arch-runner == 'arch'
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: lunar-linux-arch
-        path: bin/lunardb
