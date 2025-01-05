@@ -4,8 +4,13 @@
 .vscode
 dump
 installer
+server
 Gemfile
 Makefile
+CMakeLists.txt
+COMPILEGUIDE.md
+.elixir_ls
+.fleet
 lib
 tools
 testing
@@ -23,6 +28,7 @@ obj
 *.yml
 Dockerfile
 .dockerignore
+dockercompose.yml
 modules
 *.exs
 *.png
