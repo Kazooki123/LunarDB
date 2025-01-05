@@ -2,6 +2,13 @@
 .git
 .github
 .vscode
+dump
+installer
+Gemfile
+Makefile
+lib
+tools
+testing
 build
 obj
 *.o
@@ -17,3 +24,6 @@ obj
 Dockerfile
 .dockerignore
 modules
+*.exs
+*.png
+*.ico

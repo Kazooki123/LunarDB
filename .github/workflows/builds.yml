@@ -31,8 +31,7 @@ jobs:
 
     - name: Upload artifact (Linux/Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4.4.3
+      uses: actions/upload-artifact@v4
       with:
         name: lunar-linux-ubuntu
         path: bin/lunardb
-

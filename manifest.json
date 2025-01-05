@@ -1,5 +1,5 @@
 {
-  "version": "0.1.8",
+  "version": "0.1.9",
   "binaries": [
     {
       "os": "arch",
@@ -7,11 +7,11 @@
     },
     {
       "os": "ubuntu",
-      "path": "bin/ubuntu/lunardb"
+      "path": "bin/lunardb"
     },
     {
       "os": "windows",
-      "path": "bin/windows/lunardb.exe"
+      "path": "bin/lunar.exe"
     }
   ],
   "files_to_update": [
