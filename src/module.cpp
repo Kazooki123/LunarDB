@@ -41,7 +41,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* out
     return totalSize;
 }
 
-ModuleManager::ModuleManager() : modulePath("../../modules/") {
+ModuleManager::ModuleManager() : modulePath("../modules/") {
     loadExistingModules();
 }
 

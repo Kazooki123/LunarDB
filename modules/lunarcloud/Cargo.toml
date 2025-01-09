@@ -1,0 +1,10 @@
+[package]
+name = "lunarcloud"
+description = "A Cloud service for LunarDB made in Rust and Go"
+authors = ["Kazooki123"]
+keywords = ["cloud", "service", "go", "database"]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-2.0-or-later"
+
+[dependencies]

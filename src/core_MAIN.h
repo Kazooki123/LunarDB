@@ -3,6 +3,7 @@
 // Standard Library Includes
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <chrono>
 #include <algorithm>
@@ -37,7 +38,6 @@ extern "C" {
 #include "parser.h"
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
-#include "providers/postgresql_provider.hpp"
 
 // Global variables declaration
 extern Cache cache;
