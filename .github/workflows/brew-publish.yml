@@ -28,11 +28,11 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/lunar
+          files: bin/lunardb
 
       - name: Update Homebrew Formula
         run: |
-          SHA256=$(sha256sum bin/lunar | awk '{ print $1 }')
+          SHA256=$(sha256sum bin/lunardb | awk '{ print $1 }')
           sed -i "s/{{SHA256}}/$SHA256/" lunardb.rb
           git add lunardb.rb
           git commit -m "Update formula with new version"
