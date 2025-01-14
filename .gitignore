@@ -6,6 +6,9 @@ dump/
 *.env
 *.env.local
 
+# builds
+/build/
+
 # .vscode
 .vscode/
 

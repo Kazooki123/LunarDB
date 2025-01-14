@@ -1,3 +1,23 @@
+/*
+** Copyright 2024 Kazooki123
+**
+** Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+** documentation files (the “Software”), to deal in the Software without restriction, including without
+** limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+** of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
+** conditions:
+**
+** The above copyright notice and this permission notice shall be included in all copies or substantial
+** portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+** LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+** THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+**/
+
 #include "api_handler.h"
 #include <string>
 #include <vector>
@@ -49,15 +69,15 @@ void APIHandler::setupRoutes() {
     ([this](std::string key){ return handleLlen(key); });
 }
 
-crow::response APIHandler::createJsonResponse(int status, const std::string& message,
-                                           const crow::json::wvalue& data) {
+crow::response APIHandler::createJsonResponse(int status, const std::string& message, crow::json::wvalue data) {
+
     crow::json::wvalue response;
     response["status"] = status;
     response["message"] = message;
-    if (!data.empty()) {
-        response["data"] = data;
+    if (data.size() != 0) {
+        response["data"] = std::move(data);
     }
-    return crow::response(status, response);
+    return crow::response(status, std::move(response));
 }
 
 bool APIHandler::validateKey(const std::string& key, crow::response& error) {
@@ -116,7 +136,7 @@ crow::response APIHandler::handleDelete(const std::string& key) {
 
 crow::response APIHandler::handleMget(const crow::request& req) {
     auto x = crow::json::load(req.body);
-    if (!x || !x.has("keys") || !x["keys"].is_list()) {
+    if (!x || !x.has("keys") || x["keys"].t() != crow::json::type::List) {
         return createJsonResponse(400, "Invalid request format");
     }
 
@@ -141,7 +161,7 @@ crow::response APIHandler::handleMget(const crow::request& req) {
 
 crow::response APIHandler::handleMset(const crow::request& req) {
     auto x = crow::json::load(req.body);
-    if (!x || !x.has("pairs") || !x["pairs"].is_list()) {
+    if (!x || !x.has("pairs") || x["pairs"].t() != crow::json::type::List) {
         return createJsonResponse(400, "Invalid request format");
     }
 
@@ -261,6 +281,10 @@ void APIHandler::start(const std::string& host, uint16_t port) {
 
 void APIHandler::stop() {
     app_.stop();
+}
+
+void APIHandler::save() {
+    app_.save();
 }
 
 } // namespace api

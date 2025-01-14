@@ -1,42 +1,40 @@
-# LunarDB API System
+# LunarDB API System (LATEST)
 
-A Documentation and Guide on how to use the [LunarDB API](htttps://github.com/Kazooki123/lunardb_api/)
+A guide of setting up and running the API server of **LunarDB**!
 
-First, the LunarDB API (Application Programming Interface) is made in **Go**
-A memory safe and statically typed language great for API management.
+Note: The `Go` version is deprecated and will not be continued to develop.
 
-I chose Go because of its simplicity and high level management for APIs
-of LunarDB.
+## Notes
 
-## How does it work?
+This feature is in `beta` and will changed over time.
+Also: For Windows users, just note that you can't connect to the server port for whatever
+reasons, so if you have a WSL Ubuntu(or others) installed, run it there. But before that, install WSL of course.
 
-Everything (e.g routes, handlers & keygen) are all packed in a single `main.go` file.
+## Step 1
 
-The file also **mimics** the functionality of LunarDB (SET, GET, LIST) since for now it is too
-complex to call commands to a C++ script from a Go file.
-
-## Commands to call the API
-
-SET:
+Run `api` from `bin/`
 
 ```bash
-curl -X POST http://localhost:8080/set -d '{"key": "name", "value": "John"}'
+./api
 ```
 
-GET:
+## Step 2
+
+Test it by running this:
 
 ```bash
-curl http://localhost:8080/get -d '{"key": "name"}'
+curl -X POST http://0.0.0.0:18080/set -H "Content-Type: application/json" -d '{"key": "hello", "value": "world"}'
 ```
 
-LIST:
+It should output something like this:
 
 ```bash
-curl http://localhost:8080/list
+{"data":null,"message":"Success","status":200}
 ```
 
-## How to run the API
+For `GET` and `KEYS`:
 
 ```bash
-go run main.go
+curl -X GET http://0.0.0.0:18080/get/hello
+curl -X GET http://0.0.0.0:18080/keys
 ```

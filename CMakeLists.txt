@@ -12,17 +12,17 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 include_directories(/usr/include/lua5.4)
 
 set(SOURCES
-  main.cpp
-  core_MAIN.cpp
-  cache.cpp
-  connect.cpp
-  concurrency.cpp
-  saved.cpp
-  sql.cpp
-  module.cpp
-  parser.cpp
-  sharding.cpp
-  hashing.cpp
+  src/main.cpp
+  src/core_MAIN.cpp
+  src/cache.cpp
+  src/connect.cpp
+  src/concurrency.cpp
+  src/saved.cpp
+  src/sql.cpp
+  src/module.cpp
+  src/parser.cpp
+  src/sharding.cpp
+  src/hashing.cpp
 )
 
 add_executable(lunardb ${SOURCES})
