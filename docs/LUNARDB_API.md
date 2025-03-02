@@ -18,6 +18,22 @@ Run `api` from `bin/`
 ./api
 ```
 
+In Linux, you can use the `lunardbapi.service` file, add it to your Linux system path and run this:
+
+```bash
+systemctl enable lunardbapi.service
+systemctl start lunardbapi.service
+systemctl status lunardbapi.service
+```
+
+If that doesn't work, here are some troubleshoots:
+
+```bash
+systemctl daemon-reload
+systemctl disable lunardbapi.service
+systemctl enable lunardbapi.service
+```
+
 ## Step 2
 
 Test it by running this:

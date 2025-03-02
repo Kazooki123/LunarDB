@@ -1,6 +1,7 @@
 # dump, where files & directories are temporarily not used unless they have
 # use cases in the future
 dump/
+archive/
 
 # environment files
 *.env
@@ -14,6 +15,8 @@ dump/
 
 # hashed cache files (from LunarDB)
 *.cache
+
+*.lock
 
 # fleet
 .fleet/
