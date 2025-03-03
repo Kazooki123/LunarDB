@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <shared_mutex>  // For read-write locks
+#include <shared_mutex>
 #include <stdexcept>
 
 namespace LunarDB {
@@ -17,7 +17,7 @@ public:
     virtual void insert(const std::string& key, const std::string& value) = 0;
     virtual std::optional<std::string> get(const std::string& key) const = 0;
     virtual bool remove(const std::string& key) = 0;
-    virtual size_t size() const = 0;  // Added size method
+    virtual size_t size() const = 0;
     virtual std::vector<std::pair<std::string, std::string>> getAll() const = 0;
 };
 
@@ -47,7 +47,7 @@ public:
 private:
     std::vector<std::unique_ptr<Shard>> shards_;
     std::hash<std::string> hasher_;
-    mutable std::shared_mutex shards_mutex_;  // Read-write mutex
+    mutable std::shared_mutex shards_mutex_;
 };
 
 class MemoryShard : public Shard {

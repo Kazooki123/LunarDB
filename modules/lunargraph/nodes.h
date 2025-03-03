@@ -6,7 +6,7 @@ typedef struct Node {
   struct Node* next;
 } Node;
 
-Node* create_node(int id)
-void free_node(Node* node)
+Node* create_node(int id);
+void free_node(Node* node);
 
 #endif

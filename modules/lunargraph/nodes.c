@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "node.h"
+#include "nodes.h"
 
 Node* create_node(int id) {
   Node* new_node = (Node*)malloc(sizeof(Node));

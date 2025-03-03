@@ -30,7 +30,7 @@ void add_edge(Graph* graph, int src, int dest) {
 void free_graph(Graph* graph) {
   if (!graph) return;
 
-  for (int i = 0; i < graph->num_nodesl i++) {
+  for (int i = 0; i < graph->num_nodes; i++) {
     Node* current = graph->adjacency_list[i];
     while (current) {
       Node* temp = current;
@@ -40,5 +40,5 @@ void free_graph(Graph* graph) {
   }
 
   free(graph->adjacency_list);
-  free(graph)
+  free(graph);
 }
