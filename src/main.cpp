@@ -20,10 +20,9 @@
 **
 **/
 
-// To compile we use and run ~> "g++ -std=c++17 main.cpp core_MAIN.cpp cache.cpp saved.cpp sql.cpp module.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpq -lboost_system -pthread -o ../bin/lunardb"
+// To compile we use and run ~> "g++ -std=c++17 main.cpp core_MAIN.cpp cache.cpp saved.cpp sql.cpp parser.cpp sharding.cpp hashing.cpp -I/usr/include/lua5.4 -llua5.4 -lpq -lboost_system -pthread -o ../bin/lunardb"
 
-
-// For Linux users that don't use Ubuntu and uses other Linux distros, please refer to the COMPILEGUI markdown file guide.
+// For Linux users that don't use Ubuntu and uses other Linux distros, please refer to the COMPILEGUIDE markdown file guide.
 
 #include "core_MAIN.h"
 

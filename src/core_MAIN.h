@@ -30,7 +30,6 @@ extern "C" {
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
-#include "module.h"
 #include "sharding.h"
 #include "hashing.h"
 #include "connect.h"
