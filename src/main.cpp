@@ -52,7 +52,6 @@ int main(int argc, char* argv[]) {
 
     // Removed Cache local variable as it is moved to be global
     SQL sql(cache);
-    ModuleManager moduleManager;
     Hashing hashing;
     std::string command, line;
     Mode currentMode = Mode::SCHEMALESS;
@@ -243,47 +242,6 @@ int main(int argc, char* argv[]) {
                 if (executeLuaScript(script)) {
                     std::cout << "Lua script executed successfully.\n";
                 }
-            } else if (command == "MODULE") {
-                std::string subCommand;
-                iss >> subCommand;
-
-                if (subCommand == "ADD") {
-                    std::string moduleName;
-                    std::string repoUrl;
-
-                    if (iss >> moduleName) {
-                        if (moduleManager.installModule(moduleName, repoUrl)) {
-                            std::cout << "Module " << moduleName << " added and installed successfully.\n";
-                        } else {
-                            std::cout << "Module " << moduleName << " already exists.\n";
-                        }
-                    } else {
-                        std::cout << "Invalid MODULE ADD command. Usage: MODULE ADD <module_name>\n";
-                    }
-                } else if (subCommand == "LIST") {
-                    auto modules = moduleManager.listModules();
-                    if (modules.empty()) {
-                        std::cout << "No modules installed.\n";
-                    } else {
-                        std::cout << "Installed modules:\n";
-                        for (const auto& module : modules) {
-                            std::cout << "- " << module << "\n";
-                        }
-                    }
-                } else if (subCommand == "REMOVE") {
-                    std::string moduleName;
-                    if (iss >> moduleName) {
-                        if (moduleManager.removeModule(moduleName)) {
-                            std::cout << "Module " << moduleName << " removed successfully.\n";
-                        } else {
-                            std::cout << "Failed to remove module " << moduleName << ". It may not exist.\n";
-                        }
-                    } else {
-                        std::cout << "Invalid MODULE REMOVE command. Usage: MODULE REMOVE <module_name>\n";
-                    }
-                } else {
-                    std::cout << "Unknown MODULE subcommand. Available subcommands: ADD, LIST, REMOVE\n";
-                }
             } else if (command == "THREADS") {
                 std::cout << "Active threads: " << taskQueue.getActiveThreadCount() << "\n";
                 std::cout << "Queued tasks: " << taskQueue.getQueueSize() << "\n";
@@ -306,37 +264,6 @@ int main(int argc, char* argv[]) {
                     }
                 } else {
                     std::cout << "Invalid HASH command. Usage: HASH <subcommand> <input> [shift]\n";
-                }
-            } else if (command == "RUNLRQL") {
-                std::string filename;
-                if (iss >> filename) {
-                    if (filename.substr(filename.find_last_of(".") + 1) == "lrql") {
-                        std::ifstream file(filename);
-                        if (file) {
-                            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-                            // Check if file contains TABLE keyword
-                            if (content.find("TABLE") != std::string::npos) {
-                                try {
-                                    Tokenizer tokenizer(content);
-                                    auto tokens = tokenizer.tokenize();
-                                    Parser parser(tokens);
-                                    parser.parse();
-                                    std::cout << "Success: LRQL file executed successfully\n";
-                                } catch (const std::exception& e) {
-                                    std::cout << "Error: Failed to execute LRQL file - " << e.what() << "\n";
-                                }
-                            } else {
-                                std::cout << "Error: No TABLE definition found in the LRQL file\n";
-                            }
-                        } else {
-                            std::cout << "Error: Failed to open file: " << filename << "\n";
-                        }
-                    } else {
-                        std::cout << "Error: Invalid file type. Only .lrql files are supported.\n";
-                    }
-                } else {
-                    std::cout << "Usage: RUNLRQL file.lrql\n";
                 }
             } else if (command == "DEL") {
                 std::string key;

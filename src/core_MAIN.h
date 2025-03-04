@@ -26,7 +26,6 @@ extern "C" {
     #include <lua5.4/lualib.h>
 }
 
-// Project-specific includes
 #include "cache.h"
 #include "saved.h"
 #include "sql.h"
@@ -34,11 +33,9 @@ extern "C" {
 #include "hashing.h"
 #include "connect.h"
 #include "concurrency.h"
-#include "parser.h"
 #include "providers/provider.hpp"
 #include "providers/registry.hpp"
 
-// Global variables declaration
 extern Cache cache;
 extern LunarDB::Connection connection;
 extern TaskQueue taskQueue;
@@ -46,14 +43,12 @@ extern BackgroundProcessor bgProcessor;
 extern LunarDB::ShardManager shardManager;
 extern lua_State* L;
 
-// Enums
 enum class Mode {
     SCHEMAFULL,
     SCHEMALESS,
     SQL
 };
 
-// Function declarations
 void printColoredText(const std::string& text, const std::string& color);
 void printLunarLogo();
 void printHelp();
@@ -65,7 +60,6 @@ void closeLua();
 bool checkHealth();
 bool executeLuaScript(const std::string& script);
 
-// Template function
 template<typename F, typename... Args>
 double measureExecutionTime(F func, Args&&... args) {
     auto start = std::chrono::high_resolution_clock::now();
