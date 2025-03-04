@@ -19,8 +19,6 @@ set(SOURCES
   src/concurrency.cpp
   src/saved.cpp
   src/sql.cpp
-  src/module.cpp
-  src/parser.cpp
   src/sharding.cpp
   src/hashing.cpp
 )
