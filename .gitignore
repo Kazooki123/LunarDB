@@ -28,7 +28,6 @@ archive/
 
 # target
 /target
-tools/target/
 
 # .idea
 **.idea/
