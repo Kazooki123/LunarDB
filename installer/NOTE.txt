@@ -1,3 +1,0 @@
-// BY KAZOOKI123 & STARLOEXOLIZ
-
-This is where the MSI installer for LunarDB source and executables are stored.

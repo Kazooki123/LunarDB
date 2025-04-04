@@ -1,0 +1,23 @@
+[package]
+name = "lunardb"
+description = "A blazingly fast multi-model database written in Rust, by default is NoSQL cache"
+authors = ["Kazooki123", "Smartlinuxcoder"]
+keywords = ["database", "cache", "fast", "data", "nosql", "sql"]
+license = "MIT"
+version = "0.1.10"
+edition = "2021"
+
+[lib]
+name = "lunardb"
+path = "src/lib.rs"
+doc = true
+edition ="2021"
+crate-type = ["lib"]
+
+[dependencies]
+mlua = { version = "0.10", features = ["lua54", "vendored"] }
+regex = "1.11.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha1 = "0.10.6"
+sha2 = "0.10.8"

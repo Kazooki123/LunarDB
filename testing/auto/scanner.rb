@@ -3,7 +3,7 @@ require 'colorize'
 
 SOURCE_DIR = "../../src/"
 
-def scan_files(directory, extension = "**/*.cpp")
+def scan_files(directory, extension = "**/*.rs")
   Dir.glob(File.join(directory, extension))
 end
 
@@ -23,7 +23,7 @@ end
 
 cpp_files = scan_files(SOURCE_DIR)
 if cpp_files.empty?
-  puts "No C++ files found in #{SOURCE_DIR}".yellow
+  puts "No Rust files found in #{SOURCE_DIR}".yellow
 else
   cpp_files.each { |file| analyze_file(file) }
 end

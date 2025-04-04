@@ -1,6 +1,6 @@
 # Contributing to LunarDB
 
-Thank you for your interest in contributing to LunarDB! We highly value your effort, time, and expertise in helping improve this project.
+Thank you for your interest in contributing to LunarDB! We highly value your effort, time, and expertise in helping improve this project!
 
 LunarDB is an open-source, cache-based, in-memory key-value store database, designed to be fast, efficient, and highly scalable. We welcome contributions from developers of all skill levels, whether you are fixing bugs, implementing new features, writing documentation, or helping with testing.
 
@@ -8,11 +8,8 @@ LunarDB is an open-source, cache-based, in-memory key-value store database, desi
 
 LunarDB utilizes a variety of programming languages and technologies, each serving a specific purpose:
 
-- **C++** – The core functionality of LunarDB is implemented in C++ for performance optimization and memory management.
-- **Lua** – Lua is used for scripting and extending the system, offering flexibility in configuring and automating tasks within LunarDB.
-- **Rust** – Rust is employed for some of LunarDB's modules, ensuring memory safety and high concurrency without sacrificing performance.
-- **Elixir** - Used for things like clustering, monitoring and fault tolerance1
-- **Ruby** - For Unit and Integrated testing, now it's no longer for module handling.
+- **Rust** - The core feature after the rewrite, it now supports lua with packages like `mlua` for bindings and sandboxing. Also used for modules.
+- **Ruby** - For Unit and Integrated testing.
 
 ## How to Contribute
 
@@ -59,26 +56,6 @@ git push origin feature/my-new-feature
 ### 6. Review Process
 
 One of the project maintainers will review your pull request, provide feedback if necessary, and merge it once everything looks good. We aim to respond to pull requests within a few days.
-
-### Additional Note
-
-If you're recompiling lunar.exe make sure to run this command with [g++](https://gcc.gnu.org/):
-
-### Important Note
-
-**Note:** You would need:
-
-- The Source codes for **Lua v5.4.4**
-- For Linux this would be `liblua5.4-dev` (Ubuntu) and `lua-dev` (Arch)
-
-Compiling for Windows:
-
-**⚠️ LUNARDB IS CURRENTLY ON SUPPORT FOR LINUX FOR NOW SO COMPILING MIGHT BROKE THE MAIN WINDOWS EXE FILE AS `main.cpp` CONTAINS
-LINUX-ONLY SYNTAXES FOR LINUX `g++` ⚠️**
-
-```bash
-g++ -std=c++17 main.cpp cache.cpp saved.cpp sql.cpp module.cpp hashing.cpp -o ../bin/lunar.exe
-```
 
 ## Contribution Guidelines
 

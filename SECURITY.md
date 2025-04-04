@@ -5,16 +5,16 @@ report this immediately to the maintainer of **LunarDB**, the community, and to 
 
 ## Supported Versions
 
-**LunarDB** uses C++ and **G++/GCC*** to compile C++ files into binary machine code. Which then users and developers
-around the World can execute.
+**LunarDB** uses  Rust to compile source files into binary machine code. Which then users and developers around the World can execute.
 
-C++:
+Rust:
+
 | Version | Supported          |
 | ------- | ------------------ |
-| c++17   | :white_check_mark: |
-| v.<17   | :x:                |
+| 2021    | :white_check_mark: |
+| <2021   | :x:                |
 
-**".<"** means below c++17, which is not supported for **LunarDB**
+**"<"** means below Rust 2021 edition, which is not supported for **LunarDB**
 
 ## Reporting a Vulnerability
 

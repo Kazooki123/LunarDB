@@ -1,0 +1,18 @@
+[package]
+name = "lunarstream"
+description = "A Data Streaming module for LunarDB"
+version = "0.1.0"
+authors = ["Kazooki123 <mgamerdinge146@gmail.com>"]
+edition = "2021"
+keywords =["data", "stream", "module", "real-time"]
+license = "Apache-2.0"
+
+[lib]
+name = "lunarvector"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+
+[dependencies.uuid]
+version = "1.11"
+features = ["v4", "fast-rng", "macro-diagnostics"]

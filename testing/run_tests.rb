@@ -2,4 +2,4 @@
 
 require 'rspec'
 
-RSpec::Core::Runner.run(['tests/spec/'])
+RSpec::Core::Runner.run(['spec/'])

@@ -1,0 +1,9 @@
+[package]
+name = "lunargraph"
+description = ""
+authors = ["Kazooki123"]
+keywords = ["graph", "database", "module"]
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]

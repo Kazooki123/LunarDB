@@ -1,6 +1,6 @@
 # LunarDB Commands
 
-A Guide to **how to use** LunarDBs commands and how they work:
+A Guide to **how to use** LunarDB's commands and how they work:
 
 ## SET
 

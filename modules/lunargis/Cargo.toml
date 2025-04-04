@@ -1,0 +1,17 @@
+[package]
+name = "lunargis"
+description = "A Geographic/Spatial rust module extension for LunarDB"
+version = "0.1.0"
+authors = ["Kazooki123"]
+keywords = ["geography", "points", "regions", "spatial", "math", "module"]
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+geo = "0.29"
+rstar = "0.12"
+ffi = "0.1.1"
+geojson = "0.24.1"
+
+[build-dependencies]
+cbindgen = "0.24"

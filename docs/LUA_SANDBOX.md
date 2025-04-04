@@ -10,11 +10,10 @@ bytecode is written in ANSI C.
 
 ## What can Lua do for LunarDB?
 
-Lua, primarily known for being a **lightweight, efficient, and embeddable scripting language**, is used in
-**LunarDB** for custom scripting and a sandbox environment feature.
+Lua, primarily known for being a **lightweight, efficient, and embeddable scripting language**, is used in **LunarDB** for custom scripting and a **sandbox** environment feature.
 
-With the help of the **Lua API**, LunarDB C++ script can directly execute a Lua file for things like data
-management, analysis and benchmarking.
+With the help of the [mlua](https://github.com/mlua-rs/mlua), a rust-to-lua binding, Rust can directly run lua code inside the `CLI`
+with ease and can be use for analysis, benchmarks and more.
 
 ## Executing Lua to the `CLI`
 
