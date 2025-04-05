@@ -7,6 +7,7 @@ mod sharding;
 mod sql;
 mod connect;
 mod lua;
+mod handlers;
 
 pub use cache::Cache;
 pub use core::{Core, DataType};
@@ -66,6 +67,49 @@ impl LunarDB {
 
     pub fn core(&self) -> &Core {
         &self.core
+    }
+
+    pub fn set(&self, key: String, value: String) {
+        self.core.set(key, DataType::String(value));
+    }
+
+    pub fn get(&self, key: &str) -> Option<String> {
+        match self.core.get(key) {
+            Some(DataType::String(s)) => Some(s),
+            _ => None
+        }
+    }
+
+    pub fn del(&self, keys: &[String]) -> usize {
+        self.core.del(keys)
+    }
+
+    pub fn lpush(&self, key: String, values: Vec<String>) -> usize {
+        self.core.lpush(key, values)
+    }
+
+    pub fn rpush(&self, key: String, values: Vec<String>) -> usize {
+        self.core.rpush(key, values)
+    }
+
+    pub fn lrange(&self, key: &str, start: i32, stop: i32) -> Option<Vec<String>> {
+        self.core.lrange(key, start, stop)
+    }
+
+    pub fn llen(&self, key: &str) -> usize {
+        self.core.llen(key)
+    }
+
+    pub fn keys(&self, pattern: Option<&str>) -> Vec<String> {
+        self.core.keys(pattern)
+    }
+
+    pub fn size(&self) -> usize {
+        self.core.size()
+    }
+
+    pub fn cleanup(&self) -> usize {
+        self.core.cleanup()
     }
 
     pub fn core_mut(&mut self) -> &mut Core {

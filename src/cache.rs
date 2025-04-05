@@ -24,38 +24,39 @@ impl <K, V> Cache<K, V> where K: Eq + Hash + Clone, V: Clone {
   }
 
   pub fn put(&mut self, key: K, value: V) {
-    if let Some((_, idx)) = self.map.get(&key) {
-        self.map.insert(key.clone(), (value, *idx));
-        self.queue.remove(*idx);
+    let idx = if let Some((_, old_idx)) = self.map.get(&key) {
+        let idx = *old_idx;
+        self.queue.remove(idx);
         self.queue.push_front(key.clone());
-        self.update_indices();
-        return;
-    }
-
-    if self.map.len() >= self.capacity {
-        if let Some(old_key) = self.queue.pop_back() {
-            self.map.remove(&old_key);
-            self.last_access_time.remove(&old_key);
+        0
+    } else {
+        if self.map.len() >= self.capacity {
+            if let Some(old_key) = self.queue.pop_back() {
+                self.map.remove(&old_key);
+                self.last_access_time.remove(&old_key);
+            }
         }
-    }
+        self.queue.push_front(key.clone());
+        0
+    };
 
-    self.queue.push_front(key.clone());
-    self.map.insert(key.clone(), (value, 0));
+    self.map.insert(key.clone(), (value, idx));
     self.last_access_time.insert(key, Instant::now());
     self.update_indices();
   }
 
-  pub fn get(&mut self, key: &K) -> Option<&V> {
-    if let Some((value, idx)) = self.map.get(key) {
+  pub fn get(&mut self, key: &K) -> Option<V> {
+    if let Some((value, idx)) = self.map.get(key).map(|(v, i)| (v.clone(), *i)) {
         self.last_access_time.insert(key.clone(), Instant::now());
-        self.queue.remove(*idx);
+        self.queue.remove(idx);
         self.queue.push_front(key.clone());
         self.update_indices();
         self.hits += 1;
-        return Some(value);
+        Some(value)
+    } else {
+        self.misses += 1;
+        None
     }
-    self.misses += 1;
-    None
   }
 
   pub fn remove(&mut self, key: &K) -> Option<V> {

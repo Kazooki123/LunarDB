@@ -1,5 +1,4 @@
-use sha2::Digest;
-use mlua::{Lua, Result as LuaResult, Table, Function, Value, UserData, UserDataMethods};
+use mlua::{Lua, Value, UserData, UserDataMethods};
 use std::sync::{Arc, Mutex};
 use crate::core::Core;
 use crate::core::DataType;
@@ -19,11 +18,11 @@ struct LunarDBLua {
 
 impl UserData for LunarDBLua {
     fn add_methods<M: UserDataMethods<Self>>(methods: &mut M) {
-        methods.add_method("get", |ctx, this, key: String| {
+        methods.add_method("get", |lua, this, key: String| {
             match this.core.get(&key) {
-                Some(DataType::String(s)) => Ok(Value::String(ctx.create_string(&s)?)),
+                Some(DataType::String(s)) => Ok(Value::String(lua.create_string(&s)?)),
                 Some(DataType::List(list)) => {
-                    let lua_list = ctx.create_table()?;
+                    let lua_list = lua.create_table()?;
                     for (i, item) in list.iter().enumerate() {
                         lua_list.set(i + 1, item.clone())?;
                     }
@@ -33,7 +32,7 @@ impl UserData for LunarDBLua {
             }
         });
 
-        methods.add_method("set", |ctx, this, (key, value): (String, Value)| {
+        methods.add_method("set", |lua, this, (key, value): (String, Value)| {
             match value {
                 Value::String(s) => {
                     let str_value = s.to_str()?.to_string();
@@ -146,7 +145,6 @@ impl UserData for LunarDBLua {
 
 
 impl LuaEngine {
-    /// Create a new Lua engine with the given core and default settings
     pub fn new(core: Arc<Core>) -> Self {
         Self {
             core,
@@ -155,7 +153,6 @@ impl LuaEngine {
         }
     }
 
-    /// Create a new Lua engine with custom limits
     pub fn with_limits(core: Arc<Core>, max_execution_time: Duration, max_memory: usize) -> Self {
         Self {
             core,
@@ -164,12 +161,8 @@ impl LuaEngine {
         }
     }
 
-    /// Evaluate a Lua script with the given keys and arguments
     pub fn eval(&self, script: &str, keys: Vec<String>, args: Vec<String>) -> Result<String, String> {
-        let lua = match self.sandbox.create_env() {
-            Ok(lua) => lua,
-            Err(e) => return Err(format!("Failed to create Lua environment: {}", e)),
-        };
+        let lua = Lua::new();
 
         let globals = lua.globals();
         let db = LunarDBLua { core: Arc::clone(&self.core) };
@@ -216,7 +209,6 @@ impl LuaEngine {
         }
     }
 
-    /// Evaluate a script from the cache or compile it first
     pub fn evalsha(&self, sha1: &str, keys: Vec<String>, args: Vec<String>) -> Result<String, String> {
         let script_bytes = {
             let cache = self.script_cache.lock().unwrap();
@@ -234,7 +226,6 @@ impl LuaEngine {
         self.eval(&script, keys, args)
     }
 
-    /// Load a script into the cache and return its SHA2 hash
     pub fn script_load(&self, script: &str) -> String {
         use sha2::{Sha256, Digest};
         let mut hasher = Sha256::new();
@@ -245,19 +236,16 @@ impl LuaEngine {
         hash
     }
 
-    /// Check if a script exists in the cache
     pub fn script_exists(&self, sha1: &str) -> bool {
         let cache = self.script_cache.lock().unwrap();
         cache.contains_key(sha1)
     }
 
-    /// Flush the script cache
     pub fn script_flush(&self) {
         let mut cache = self.script_cache.lock().unwrap();
         cache.clear();
     }
 
-    /// Convert a Lua value to a string representation
     fn lua_value_to_string(&self, value: mlua::Value) -> Result<String, String> {
         match value {
             Value::Nil => Ok("nil".to_string()),

@@ -1,6 +1,5 @@
-use mlua::{Lua, Result as LuaResult, Table, Function, Value, StdLib, LuaOptions};
+use mlua::{Lua, Result as LuaResult, StdLib, LuaOptions};
 use std::time::Duration;
-use std::sync::Arc;
 
 pub struct LuaSandbox {
     max_execution_time: Duration,
@@ -23,19 +22,21 @@ impl LuaSandbox {
     }
 
     pub fn create_env() -> LuaResult<Lua> {
-        let lua = Lua::unsafe_new_with(
-            StdLib::TABLE | StdLib::STRING | StdLib::MATH,
-            LuaOptions::default(),
-        );
+        let lua = unsafe {
+            Lua::unsafe_new_with(
+                StdLib::TABLE | StdLib::STRING | StdLib::MATH,
+                LuaOptions::default(),
+            )
+        };
 
         let globals = lua.globals();
-        globals.set("dofile", lua.create_function(|_, _: ()| Ok(()))?)?;
-        globals.set("loadfile", lua.create_function(|_, _: ()| Ok(()))?)?;
-        globals.set("load", lua.create_function(|_, _: ()| Ok(()))?)?;
-        globals.set("os", lua.create_table()?)?;
-        globals.set("io", lua.create_table()?)?;
-        globals.set("package", lua.create_table()?)?;
-        globals.set("require", lua.create_function(|_, _: ()| Ok(()))?)?;
+        globals.set("dofile", lua.create_table())?;
+        globals.set("loadfile", lua.create_table())?;
+        globals.set("load", lua.create_table())?;
+        globals.set("os", lua.create_table())?;
+        globals.set("io", lua.create_table())?;
+        globals.set("package", lua.create_table())?;
+        globals.set("require", lua.create_table())?;
 
         Ok(lua)
     }
@@ -66,13 +67,18 @@ impl LuaSandbox {
     fn setup_time_limit(&self, lua: &Lua) -> LuaResult<()> {
         let max_time = self.max_execution_time;
 
-        lua.set_hook(move |_, _| {
-            if std::thread::current().name().unwrap_or("") == "lua_timer" {
-                return Ok(());
-            }
-
-            Err(mlua::Error::RuntimeError("Script execution time exceeded".to_string()))
-        }, mlua::HookTriggers::every(1000))?;
+        lua.set_hook(
+            mlua::HookTriggers::new().every_line(),
+            move |_, _| {
+                if std::thread::current().name().unwrap_or("") == "lua_timer" {
+                    Ok(())
+                } else {
+                    Err(mlua::Error::RuntimeError(
+                        "Script execution time exceeded".to_string(),
+                    ))
+                }
+            },
+        )?;
 
         Ok(())
     }

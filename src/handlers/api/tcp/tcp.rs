@@ -2,7 +2,6 @@ use std::net::{TcpListener, TcpStream};
 use std::io::{Read, Write};
 use std::sync::Arc;
 use crate::core::{Core, DataType};
-use std::collections::VecDeque;
 use std::thread;
 
 pub struct TcpHandler {
@@ -40,6 +39,7 @@ impl TcpHandler {
 }
 
 fn handle_connection(mut stream: TcpStream, core: Arc<Core>) -> Result<(), String> {
+    let mut message_buffer = Vec::new();
     let mut buffer = [0; 1024];
 
     loop {
@@ -50,11 +50,18 @@ fn handle_connection(mut stream: TcpStream, core: Arc<Core>) -> Result<(), Strin
             return Ok(());
         }
 
-        let request = String::from_utf8_lossy(&buffer[..n]);
-        let response = process_command(&request, &core);
+        message_buffer.extend_from_slice(&buffer[..n]);
 
-        stream.write_all(response.as_bytes())
-            .map_err(|e| format!("Failed to write response: {}", e))?;
+        while let Some(idx) = message_buffer.iter().position(|&b| b == b'\n') {
+            let message = message_buffer.drain(..=idx).collect::<Vec<_>>();
+            let request = String::from_utf8_lossy(&message);
+            let response = process_command(&request, &core);
+            let mut response_data = response.into_bytes();
+            response_data.push(b'\n');
+
+            stream.write_all(&response_data)
+                .map_err(|e| format!("Failed to write response: {}", e))?;
+        }
     }
 }
 
